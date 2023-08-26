@@ -5,7 +5,7 @@
  * */
 const Alexa = require('ask-sdk-core');
 const axios = require('axios');
-import axios from 'axios';
+
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
