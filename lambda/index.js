@@ -22,6 +22,9 @@ const LaunchRequestHandler = {
 };
 
 
+function getRandomPokemonIndex(maxIndex) {
+    return Math.floor(Math.random() * maxIndex);
+}
 
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
@@ -50,6 +53,7 @@ const GetSorteioPokemonIntentHandler = {
         }
     }
 };
+
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
