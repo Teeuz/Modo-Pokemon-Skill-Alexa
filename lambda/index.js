@@ -19,7 +19,6 @@ const LaunchRequestHandler = {
     }
 };
 
-const Alexa = require('ask-sdk-core');
 const axios = require('axios');
 
 const GetSorteioPokemonIntentHandler = {
