@@ -19,20 +19,46 @@ const LaunchRequestHandler = {
     }
 };
 
-const HelloWorldIntentHandler = {
+const Alexa = require('ask-sdk-core');
+const axios = require('axios');
+
+const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'HelloWorldIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = 'Hello World!';
+    async handle(handlerInput) {
+        try {
+            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
+            const pokemons = response.data.resultados;
 
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
-            .getResponse();
+            const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
+            const randomPokemon = pokemons[randomPokemonIndex];
+            const pokemonName = randomPokemon.name;
+
+            const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        } catch (err) {
+            const speakOutput = `Erro ao realizar o sorteio: ${err.message}`;
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        }
     }
 };
+
+function getRandomPokemonIndex(maxIndex) {
+    return Math.floor(Math.random() * maxIndex);
+}
+
+exports.handler = Alexa.SkillBuilders.custom()
+    .addRequestHandlers(
+        GetSorteioPokemonIntentHandler
+    )
+    .lambda();
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
@@ -144,7 +170,7 @@ const ErrorHandler = {
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        HelloWorldIntentHandler,
+        GetSorteioPokemonIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
