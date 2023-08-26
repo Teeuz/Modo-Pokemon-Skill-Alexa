@@ -19,7 +19,7 @@ const LaunchRequestHandler = {
     }
 };
 
-const  GetSorteioPokemonIntentHandler = {
+const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === ' GetSorteioPokemonIntent';
