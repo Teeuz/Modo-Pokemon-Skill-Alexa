@@ -28,100 +28,26 @@ const GetSorteioPokemonIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
     },
-       handle(handlerInput) {
-        const frases = [ // Use colchetes para criar um array
-    "pikachu",
-    "Bulbassauro",
-    "Charmander",
-    "Squirtle",
-    "Caterpie",
-    "Weedle",
-    "Pidgey",
-    "Rattata",
-    "Spearow",
-    "Ekans",
-    "Pikachu",
-    "Sandshrew",
-    "Nidoran",
-    "Clefairy",
-    "Vulpix",
-    "Jigglypuff",
-    "Zubat",
-    "Oddish",
-    "Paras",
-    "Venonat",
-    "Diglett",
-    "Meowth",
-    "Psyduck",
-    "Mankey",
-    "Growlithe",
-    "Poliwag",
-    "Abra",
-    "Machop",
-    "Bellsprout",
-    "Tentacool",
-    "Geodude",
-    "Ponyta",
-    "Slowpoke",
-    "Magnemite",
-    "Farfetch'd",
-    "Doduo",
-    "Seel",
-    "Grimer",
-    "Shellder",
-    "Gastly",
-    "Onix",
-    "Drowzee",
-    "Krabby",
-    "Voltorb",
-    "Exeggcute",
-    "Cubone",
-    "Hitmonlee",
-    "Hitmonchan",
-    "Lickitung",
-    "Koffing",
-    "Rhyhorn",
-    "Chansey",
-    "Tangela",
-    "Kangaskhan",
-    "Horsea",
-    "Goldeen",
-    "Staryu",
-    "Mr. Mime",
-    "Scyther",
-    "Jynx",
-    "Electabuzz",
-    "Magmar",
-    "Pinsir",
-    "Tauros",
-    "Magikarp",
-    "Lapras",
-    "Ditto",
-    "Eevee",
-    "Vaporeon",
-    "Jolteon",
-    "Flareon",
-    "Porygon",
-    "Omanyte",
-    "Kabuto",
-    "Aerodactyl",
-    "Snorlax",
-    "Articuno",
-    "Zapdos",
-    "Moltres",
-    "Dratini",
-    "Dragonair",
-    "Dragonite",
-    "Mewtwo",
-    "Mew",
-        ];
-        
-        const pokemonSorteado = frases[Math.floor(Math.random() * frases.length)];
-        const speakOutput = `O Pokémon sorteado foi ${pokemonSorteado}.`; // Aqui adicionamos a mensagem
-        
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
+    async handle(handlerInput) {
+        try {
+            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
+            const pokemons = response.data.resultados;
+
+            const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
+            const randomPokemon = pokemons[randomPokemonIndex];
+            const pokemonName = randomPokemon.name;
+
+            const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        } catch (err) {
+            const speakOutput = `Erro ao realizar o sorteio: ${err.message}`;
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        }
     }
 };
 
