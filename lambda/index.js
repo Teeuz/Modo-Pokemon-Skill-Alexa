@@ -34,11 +34,11 @@ const GetSorteioPokemonIntentHandler = {
     async handle(handlerInput) {
         try {
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
-            const pokemons = response.data.resultados;
+            const pokemons = response.data.results;
 
             const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
             const randomPokemon = pokemons[randomPokemonIndex];
-            const pokemonName = randomPokemon.nome; // Use "nome" em vez de "name"
+            const pokemonName = randomPokemon.name;
 
             const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
 
