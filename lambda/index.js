@@ -117,7 +117,6 @@ const GetSorteioPokemonIntentHandler = {
         
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            .error 
             .getResponse();
     }
 };
