@@ -38,7 +38,7 @@ const GetSorteioPokemonIntentHandler = {
 
             const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
             const randomPokemon = pokemons[randomPokemonIndex];
-            const pokemonName = randomPokemon.name;
+            const pokemonName = randomPokemon.nome; // Use "nome" em vez de "name"
 
             const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
 
@@ -53,6 +53,12 @@ const GetSorteioPokemonIntentHandler = {
         }
     }
 };
+
+exports.handler = Alexa.SkillBuilders.custom()
+    .addRequestHandlers(
+        GetSorteioPokemonIntentHandler
+    )
+    .lambda();
 
 
 const HelpIntentHandler = {
