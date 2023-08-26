@@ -1,0 +1,14 @@
+{
+  "manifest": {
+    "apis": {
+      "custom": {}
+    },
+    "publishingInformation": {
+      "locales": {
+        "pt-BR": {
+          "name": "sorteio pokemon"
+        }
+      }
+    }
+  }
+}
