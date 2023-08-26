@@ -4,6 +4,8 @@
  * session persistence, api calls, and more.
  * */
 const Alexa = require('ask-sdk-core');
+const axios = require('axios');
+import axios from 'axios';
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
@@ -19,6 +21,8 @@ const LaunchRequestHandler = {
     }
 };
 
+
+
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -26,7 +30,7 @@ const GetSorteioPokemonIntentHandler = {
     },
        handle(handlerInput) {
         const frases = [ // Use colchetes para criar um array
-         "pikachu",
+    "pikachu",
     "Bulbassauro",
     "Charmander",
     "Squirtle",
