@@ -12,7 +12,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Welcome?';
+        const speakOutput = 'Modo sorteador pokemon ativado, me peça para sortear um pokemon?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
