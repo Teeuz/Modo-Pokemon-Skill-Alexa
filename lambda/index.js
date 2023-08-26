@@ -22,14 +22,102 @@ const LaunchRequestHandler = {
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === ' GetSorteioPokemonIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = 'Hello World!';
-
+       handle(handlerInput) {
+        const frases = [ // Use colchetes para criar um array
+         "pikachu",
+    "Bulbassauro",
+    "Charmander",
+    "Squirtle",
+    "Caterpie",
+    "Weedle",
+    "Pidgey",
+    "Rattata",
+    "Spearow",
+    "Ekans",
+    "Pikachu",
+    "Sandshrew",
+    "Nidoran",
+    "Clefairy",
+    "Vulpix",
+    "Jigglypuff",
+    "Zubat",
+    "Oddish",
+    "Paras",
+    "Venonat",
+    "Diglett",
+    "Meowth",
+    "Psyduck",
+    "Mankey",
+    "Growlithe",
+    "Poliwag",
+    "Abra",
+    "Machop",
+    "Bellsprout",
+    "Tentacool",
+    "Geodude",
+    "Ponyta",
+    "Slowpoke",
+    "Magnemite",
+    "Farfetch'd",
+    "Doduo",
+    "Seel",
+    "Grimer",
+    "Shellder",
+    "Gastly",
+    "Onix",
+    "Drowzee",
+    "Krabby",
+    "Voltorb",
+    "Exeggcute",
+    "Cubone",
+    "Hitmonlee",
+    "Hitmonchan",
+    "Lickitung",
+    "Koffing",
+    "Rhyhorn",
+    "Chansey",
+    "Tangela",
+    "Kangaskhan",
+    "Horsea",
+    "Goldeen",
+    "Staryu",
+    "Mr. Mime",
+    "Scyther",
+    "Jynx",
+    "Electabuzz",
+    "Magmar",
+    "Pinsir",
+    "Tauros",
+    "Magikarp",
+    "Lapras",
+    "Ditto",
+    "Eevee",
+    "Vaporeon",
+    "Jolteon",
+    "Flareon",
+    "Porygon",
+    "Omanyte",
+    "Kabuto",
+    "Aerodactyl",
+    "Snorlax",
+    "Articuno",
+    "Zapdos",
+    "Moltres",
+    "Dratini",
+    "Dragonair",
+    "Dragonite",
+    "Mewtwo",
+    "Mew",
+        ];
+        
+        const pokemonSorteado = frases[Math.floor(Math.random() * frases.length)];
+        const speakOutput = `O Pokémon sorteado foi ${pokemonSorteado}.`; // Aqui adicionamos a mensagem
+        
         return handlerInput.responseBuilder
             .speak(speakOutput)
-            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+            .error 
             .getResponse();
     }
 };
