@@ -19,46 +19,20 @@ const LaunchRequestHandler = {
     }
 };
 
-const Alexa = require('ask-sdk-core');
-const axios = require('axios');
-
-const GetSorteioPokemonIntentHandler = {
+const  GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === ' GetSorteioPokemonIntent';
     },
-    async handle(handlerInput) {
-        try {
-            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
-            const pokemons = response.data.resultados;
+    handle(handlerInput) {
+        const speakOutput = 'Hello World!';
 
-            const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
-            const randomPokemon = pokemons[randomPokemonIndex];
-            const pokemonName = randomPokemon.name;
-
-            const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
-
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .getResponse();
-        } catch (err) {
-            const speakOutput = `Erro ao realizar o sorteio: ${err.message}`;
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .getResponse();
-        }
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            //.reprompt('add a reprompt if you want to keep the session open for the user to respond')
+            .getResponse();
     }
 };
-
-function getRandomPokemonIndex(maxIndex) {
-    return Math.floor(Math.random() * maxIndex);
-}
-
-exports.handler = Alexa.SkillBuilders.custom()
-    .addRequestHandlers(
-        GetSorteioPokemonIntentHandler
-    )
-    .lambda();
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
