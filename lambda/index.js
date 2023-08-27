@@ -24,7 +24,7 @@ const LaunchRequestHandler = {
 function getRandomPokemonIndex(maxIndex) {
     return Math.floor(Math.random() * maxIndex);
 }
-let randomNumber1 = 0;
+const randomNumber1 = 0;
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -38,14 +38,9 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
-            const pokemonDetails = pokemonResponse.data;
-
-            const typeSlot1 = pokemonDetails.types[0].type.name;
-
-            const pokemonResponse = await axios.get(randomPokemon.url);
 
             randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon do tipo ${typeSlot1}?`;
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
@@ -72,15 +67,14 @@ const CapturePokemonIntentHandler = {
         const { pokemonName, randomNumber1 } = sessionAttributes;
 
         const randomNumber2 = getRandomNumber(0, 100);
-        let speakOutput = "";
+        const speakOutput = "";
         if (randomNumber1 >= randomNumber2) {
 
-         speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+            speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
       
         } else {
             
-        speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
-        
+            speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
         }
         return handlerInput.responseBuilder
                 .speak(speakOutput)
@@ -88,6 +82,9 @@ const CapturePokemonIntentHandler = {
     }
 };
 
+function getRandomPokemonIndex(maxIndex) {
+    return Math.floor(Math.random() * maxIndex);
+}
 
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
