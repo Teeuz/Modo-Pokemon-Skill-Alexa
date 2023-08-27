@@ -12,7 +12,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Modo sorteador pokemon ativado, me peça para sortear um pokemon!';
+        const speakOutput = 'Bem vindo a cidade de Pallet Treinador! me peça para caçar um pokemon!';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -74,7 +74,7 @@ const CapturePokemonIntentHandler = {
                 .speak(speakOutput)
                 .getResponse();
         } else {
-            const speakOutput = 'Pokemon...';
+            const speakOutput = `${pokemonName}. Escapou`;
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .addDelegateDirective({
@@ -122,7 +122,7 @@ const CancelAndStopIntentHandler = {
                 || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
     },
     handle(handlerInput) {
-        const speakOutput = 'Goodbye!';
+        const speakOutput = 'Adeus treinador!';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
