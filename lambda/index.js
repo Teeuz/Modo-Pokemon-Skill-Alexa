@@ -24,7 +24,7 @@ const LaunchRequestHandler = {
 function getRandomPokemonIndex(maxIndex) {
     return Math.floor(Math.random() * maxIndex);
 }
-
+const randomNumber1 = 0;
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -39,7 +39,7 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
-            const randomNumber1 = getRandomNumber(0, 100);
+            randomNumber1 = getRandomNumber(0, 100);
             const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
