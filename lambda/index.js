@@ -48,7 +48,7 @@ const GetSorteioPokemonIntentHandler = {
 
 
             const randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Estou Localizando um Pokémon <break time="${getRandomNumber(2000, 90000)}ms"/> Pokémon Encontrado: ${pokemonName}! Ele é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
+            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
             Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
@@ -94,9 +94,6 @@ function getRandomPokemonIndex(maxIndex) {
     return Math.floor(Math.random() * maxIndex);
 }
 
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         GetSorteioPokemonIntentHandler
