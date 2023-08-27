@@ -40,7 +40,7 @@ const GetSorteioPokemonIntentHandler = {
             const pokemonName = randomPokemon.name;
 
             const randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!!,,, ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
@@ -49,7 +49,7 @@ const GetSorteioPokemonIntentHandler = {
                 .reprompt('Você gostaria de capturar este Pokémon?')
                 .getResponse();
         } catch (err) {
-            const speakOutput = `Erro ao realizar o sorteio: ${err.message}`;
+            const speakOutput = `Erro ao realizar busca: ${err.message}`;
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .getResponse();
@@ -74,7 +74,7 @@ const CapturePokemonIntentHandler = {
                 .speak(speakOutput)
                 .getResponse();
         } else {
-            const speakOutput = 'Procurando Pokémon...';
+            const speakOutput = 'Pokemon...';
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .addDelegateDirective({
