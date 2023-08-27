@@ -75,12 +75,12 @@ const CapturePokemonIntentHandler = {
                 .getResponse();
         } else {
             const speakOutput = `${pokemonName}. Escapou`;
+            const repromptOutput = 'Você gostaria de continuar procurando Pokémon?';
+
             return handlerInput.responseBuilder
                 .speak(speakOutput)
-                .addDelegateDirective({
-                    name: 'GetSorteioPokemonIntent',
-                    confirmationStatus: 'NONE',
-                })
+                .reprompt(repromptOutput)
+                .addElicitSlotDirective('captureChoice', 'GetSorteioPokemonIntent')
                 .getResponse();
         }
     }
