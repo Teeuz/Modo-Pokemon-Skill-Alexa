@@ -40,7 +40,7 @@ const GetSorteioPokemonIntentHandler = {
             const pokemonName = randomPokemon.name;
 
             const randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!!  ${pokemonName}    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!!,,, ${pokemonName}    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
