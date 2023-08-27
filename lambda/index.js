@@ -39,16 +39,16 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
-            const pokemonUrl = randomPokemon.url;  // Obter a URL do Pokémon
+            const pokemonUrl = randomPokemon.url;  
 
-            const pokemonResponse = await axios.get(pokemonUrl);  // Fazer uma solicitação para a URL do Pokémon
-            const types = pokemonResponse.data.types;  // Obter os tipos do Pokémon
+            const pokemonResponse = await axios.get(pokemonUrl);  
+            const types = pokemonResponse.data.types;  
 
-            const typeNames = types.map(type => type.type.name);  // Extrair os nomes dos tipos
+            const typeNames = types.map(type => type.type.name); 
 
 
             const randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Localizando Pokémon <break time="${getRandomNumber(3000, 10000)}ms"/> Pokémon Encontrado: ${pokemonName}! Ele é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
+            const speakOutput = `Estou Localizando um Pokémon <break time="${getRandomNumber(2000, 90000)}ms"/> Pokémon Encontrado: ${pokemonName}! Ele é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
             Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
@@ -81,7 +81,7 @@ const CapturePokemonIntentHandler = {
         if (randomNumber1 >= randomNumber2) {
             speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
         } else {
-            speakOutput = `${pokemonName} escapou. Você gostaria de continuar procurando Pokémon?`;
+            speakOutput = `${pokemonName} ${fraseEscapou}. Estou procurando um novo pokemon?`;
         }
 
         return handlerInput.responseBuilder
@@ -103,6 +103,22 @@ exports.handler = Alexa.SkillBuilders.custom()
     )
     .lambda();
 
+    const randomIndex = getRandomNumber(0, pokemonEscapou.length - 1);
+    const pokemonEscapou = fraseEscapou[randomIndex];
+    const fraseEscapou = [
+        "escapou devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
+        "conseguiu escapar na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar do jogador.",
+        "correu na direção de um penhasco, e o jogador não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
+        "Enquanto o jogador tentava capturar o Pokémon, outro Pokémon selvagem apareceu e distraiu o Pokémon alvo, permitindo que ele escapasse.",
+        "O treinador não conseguiu reagir a tempo e o Pokémon escapou enquanto o treinador estava distraído olhando em outra direção.",
+        "Um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, assustando-o e fazendo com que ele fugisse.",
+        "alvo era particularmente ágil e conseguiu se esquivar do jogador de maneira surpreendentemente rápida.",
+        "percebeu que estava em desvantagem e fugiu para preservar sua própria segurança.",
+        "Mudanças repentinas no clima afetaram a visibilidade ou a mobilidade, permitindo que o Pokémon escapasse sem ser visto.",
+        "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar do jogador."
+    ];
+    
+ 
 
 const HelpIntentHandler = {
     canHandle(handlerInput) {
