@@ -21,10 +21,6 @@ const LaunchRequestHandler = {
     }
 };
 
-function getRandomPokemonIndex(maxIndex) {
-    return Math.floor(Math.random() * maxIndex);
-}
-const randomNumber1 = 0;
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -39,15 +35,15 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
-            const pokemonUrl = randomPokemon.url;  
+            const pokemonUrl = randomPokemon.url;
 
-            const pokemonResponse = await axios.get(pokemonUrl);  
-            const types = pokemonResponse.data.types;  
+            const pokemonResponse = await axios.get(pokemonUrl);
+            const types = pokemonResponse.data.types;
 
-            const typeNames = types.map(type => type.type.name); 
-            
-            const randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
+            const typeNames = types.map(type => type.type.name);
+
+            const randomNumber1 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
+            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
             Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
