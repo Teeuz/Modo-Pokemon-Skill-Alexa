@@ -81,7 +81,7 @@ const CapturePokemonIntentHandler = {
         if (randomNumber1 >= randomNumber2) {
             speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
         } else {
-            speakOutput = `${pokemonName} ${fraseEscapou}. Estou procurando um novo pokemon?`;
+            speakOutput = `${pokemonName}. Estou procurando um novo pokemon?`;
         }
 
         return handlerInput.responseBuilder
