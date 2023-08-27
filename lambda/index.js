@@ -31,7 +31,7 @@ const GetSorteioPokemonIntentHandler = {
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
-            const randomPokemonIndex = Math.floor(Math.random() * pokemons.length);
+            const randomPokemonIndex = Math.floor(Math.random() * 151) + 1;
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
@@ -67,27 +67,47 @@ const CapturePokemonIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
     },
     handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const { pokemonName, randomNumber1 } = sessionAttributes;
+        try {
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            const { pokemonName, randomNumber1 } = sessionAttributes;
 
-        const randomNumber2 = getRandomNumber(0, 100);
-        let speakOutput = ""; 
+            const randomNumber2 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
+            let speakOutput = "";
 
-        if (randomNumber1 >= randomNumber2) {
-            speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
-        } else {
-            speakOutput = `${pokemonName}. Estou procurando um novo pokemon?`;
+            if (randomNumber1 >= randomNumber2) {
+                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+            } else {
+                const pokemonEscapou = [
+                    "O Pokémon escapou devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
+                    "O Pokémon conseguiu escapar na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar do jogador.",
+                    "O Pokémon correu na direção de um penhasco, e o jogador não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
+                    "Enquanto o jogador tentava capturar o Pokémon, outro Pokémon selvagem apareceu e distraiu o Pokémon alvo, permitindo que ele escapasse.",
+                    "O treinador não conseguiu reagir a tempo e o Pokémon escapou enquanto o treinador estava distraído olhando em outra direção.",
+                    "Um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, assustando-o e fazendo com que ele fugisse.",
+                    "O Pokémon alvo era particularmente ágil e conseguiu se esquivar do jogador de maneira surpreendentemente rápida.",
+                    "O Pokémon percebeu que estava em desvantagem e fugiu para preservar sua própria segurança.",
+                    "Mudanças repentinas no clima afetaram a visibilidade ou a mobilidade, permitindo que o Pokémon escapasse sem ser visto.",
+                    "O Pokémon caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar do jogador."
+                ];
+
+                const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
+                const randomCapturePhrase = pokemonEscapou[randomIndex];
+
+                speakOutput = `${pokemonName}. ${randomCapturePhrase}?`;
+            }
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        } catch (err) {
+            const speakOutput = `Erro ao realizar captura: ${err.message}`;
+            console.error(err); 
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
         }
-
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
     }
 };
-
-function getRandomPokemonIndex(maxIndex) {
-    return Math.floor(Math.random() * maxIndex);
-}
 
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
