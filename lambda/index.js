@@ -92,8 +92,8 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
-                speakOutput = `${pokemonName} ${randomCapturePhrase}`;
-                return GetSorteioPokemonIntentHandler.handle(handlerInput);
+                speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro pokemon`;
+
             }
 
             return handlerInput.responseBuilder
