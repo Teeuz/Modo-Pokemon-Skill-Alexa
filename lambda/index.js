@@ -35,7 +35,7 @@ const GetSorteioPokemonIntentHandler = {
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
-            const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
+            const randomPokemonIndex = Math.floor(Math.random() * pokemons.length);
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
@@ -45,8 +45,7 @@ const GetSorteioPokemonIntentHandler = {
             const types = pokemonResponse.data.types;  
 
             const typeNames = types.map(type => type.type.name); 
-
-
+            
             const randomNumber1 = getRandomNumber(0, 100);
             const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! é do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
             Você gostaria de tentar capturar este Pokémon?`;
