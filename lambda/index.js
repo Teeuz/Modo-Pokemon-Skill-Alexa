@@ -45,7 +45,7 @@ const GetSorteioPokemonIntentHandler = {
             const pokemonResponse = await axios.get(randomPokemon.url);
 
             randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon do tipo ${typeSlot1}?`;
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon do tipo`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
