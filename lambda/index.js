@@ -79,21 +79,21 @@ const CapturePokemonIntentHandler = {
             } else {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
-                    "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de voce.",
-                    "correu na direção de um penhasco, e o voce não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
-                    "escapou, Enquanto voce tentava capturar, outro Pokémon selvagem apareceu e distraiu voce",
-                    "escapou, Voce não conseguiu reagir a tempo pois estava distraído olhando em outra direção.",
+                    "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
+                    "correu na direção de um penhasco, e o você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
+                    "escapou, Enquanto você tentava capturar, outro Pokémon selvagem apareceu e distraiu você",
+                    "escapou, você não conseguiu reagir a tempo pois estava distraído olhando em outra direção.",
                     "Fugiu assustado pois um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, .",
-                    "É particularmente ágil e conseguiu se esquivar de voce de maneira surpreendentemente rápida.",
+                    "É particularmente ágil e conseguiu se esquivar de você de maneira surpreendentemente rápida.",
                     "percebeu que estava em desvantagem e fugiu para preservar sua própria segurança.",
                     "escapou sem ser visto. Mudanças repentinas no clima afetaram a sua visibilidade e a mobilidade.",
-                    "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de voce."
+                    "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de você."
                 ];
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
 
-                speakOutput = `${pokemonName}. ${randomCapturePhrase}?`;
+                speakOutput = `${pokemonName} ${randomCapturePhrase}?`;
             }
 
             return handlerInput.responseBuilder
