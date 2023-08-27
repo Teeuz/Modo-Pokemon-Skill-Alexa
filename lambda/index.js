@@ -90,14 +90,10 @@ const CapturePokemonIntentHandler = {
                     "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de você."
                 ];
 
-                
-
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
                 speakOutput = `${pokemonName} ${randomCapturePhrase}?`;
-
-                return GetSorteioPokemonIntentHandler.handle(handlerInput);
-
+                //return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
 
             return handlerInput.responseBuilder
