@@ -92,8 +92,8 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
-                speakOutput = `${pokemonName} ${randomCapturePhrase}?`;
-                //return GetSorteioPokemonIntentHandler.handle(handlerInput);
+                speakOutput = `${pokemonName} ${randomCapturePhrase}`;
+                return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
 
             return handlerInput.responseBuilder
@@ -122,7 +122,7 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
+        const speakOutput = 'Você pode dizer olá para mim! Como posso ajudar?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -156,7 +156,7 @@ const FallbackIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.FallbackIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Sorry, I don\'t know about that. Please try again.';
+        const speakOutput = 'Não sei sobre este assunto, tente novamente .';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -190,7 +190,7 @@ const IntentReflectorHandler = {
     },
     handle(handlerInput) {
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
-        const speakOutput = `You just triggered ${intentName}`;
+        const speakOutput = `Voce acionou ${intentName}`;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -208,7 +208,7 @@ const ErrorHandler = {
         return true;
     },
     handle(handlerInput, error) {
-        const speakOutput = 'Sorry, I had trouble doing what you asked. Please try again.';
+        const speakOutput = 'Desculpe, tive problemas para fazer o que você pediu. Por favor, tente novamente.';
         console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
 
         return handlerInput.responseBuilder
