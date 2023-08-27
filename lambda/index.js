@@ -24,7 +24,7 @@ const LaunchRequestHandler = {
 function getRandomPokemonIndex(maxIndex) {
     return Math.floor(Math.random() * maxIndex);
 }
-const randomNumber1 = 0;
+let randomNumber1 = 0;
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -70,11 +70,11 @@ const CapturePokemonIntentHandler = {
         const speakOutput = "";
         if (randomNumber1 >= randomNumber2) {
 
-            speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+          let  speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
       
         } else {
             
-            speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
+           let speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
         }
         return handlerInput.responseBuilder
                 .speak(speakOutput)
