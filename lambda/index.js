@@ -76,18 +76,17 @@ const CapturePokemonIntentHandler = {
         const { pokemonName, randomNumber1 } = sessionAttributes;
 
         const randomNumber2 = getRandomNumber(0, 100);
-        const speakOutput = "";
-        if (randomNumber1 >= randomNumber2) {
+        let speakOutput = ""; 
 
-        let speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
-      
+        if (randomNumber1 >= randomNumber2) {
+            speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
         } else {
-            
-        let  speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
+            speakOutput = `${pokemonName} escapou. Você gostaria de continuar procurando Pokémon?`;
         }
+
         return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .getResponse();
+            .speak(speakOutput)
+            .getResponse();
     }
 };
 
