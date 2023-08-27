@@ -67,22 +67,18 @@ const CapturePokemonIntentHandler = {
         const { pokemonName, randomNumber1 } = sessionAttributes;
 
         const randomNumber2 = getRandomNumber(0, 100);
-
+        const speakOutput = "";
         if (randomNumber1 >= randomNumber2) {
-            const speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .getResponse();
-        } else {
-            const speakOutput = `${pokemonName}. Escapou`;
-            const repromptOutput = 'Você gostaria de continuar procurando Pokémon?';
 
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .reprompt(repromptOutput)
-                .addElicitSlotDirective('captureChoice', 'GetSorteioPokemonIntent')
-                .getResponse();
+            speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+      
+        } else {
+            
+            speakOutput = `${pokemonName}. Escapou, Você gostaria de continuar procurando Pokémon?`;
         }
+        return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
     }
 };
 
