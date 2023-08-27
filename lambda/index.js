@@ -21,7 +21,6 @@ const LaunchRequestHandler = {
     }
 };
 
-
 function getRandomPokemonIndex(maxIndex) {
     return Math.floor(Math.random() * maxIndex);
 }
@@ -40,10 +39,14 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
-            const speakOutput = `O Pokémon sorteado foi ${pokemonName}.`;
+            const randomNumber1 = getRandomNumber(0, 100);
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!!${pokemonName}.Chance de captura: ${randomNumber1} porcento.`;
+
+            handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
             return handlerInput.responseBuilder
                 .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
                 .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar o sorteio: ${err.message}`;
@@ -54,6 +57,42 @@ const GetSorteioPokemonIntentHandler = {
     }
 };
 
+const CapturePokemonIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
+    },
+    handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const { pokemonName, randomNumber1 } = sessionAttributes;
+
+        const randomNumber2 = getRandomNumber(0, 100);
+
+        if (randomNumber1 >= randomNumber2) {
+            const speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        } else {
+            const speakOutput = 'Procurando Pokémon...';
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .addDelegateDirective({
+                    name: 'GetSorteioPokemonIntent',
+                    confirmationStatus: 'NONE',
+                })
+                .getResponse();
+        }
+    }
+};
+
+function getRandomPokemonIndex(maxIndex) {
+    return Math.floor(Math.random() * maxIndex);
+}
+
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         GetSorteioPokemonIntentHandler
@@ -173,6 +212,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         GetSorteioPokemonIntentHandler,
         HelpIntentHandler,
+        CapturePokemonIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
         SessionEndedRequestHandler,
