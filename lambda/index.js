@@ -48,6 +48,10 @@ const GetSorteioPokemonIntentHandler = {
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
+                .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar busca: ${err.message}`;
             return handlerInput.responseBuilder
@@ -91,6 +95,10 @@ const CapturePokemonIntentHandler = {
                 speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro pokemon`;
 
             }
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar captura: ${err.message}`;
             console.error(err); 
