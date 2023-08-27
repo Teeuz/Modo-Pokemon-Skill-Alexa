@@ -32,20 +32,15 @@ const GetSorteioPokemonIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
+              const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
             const randomPokemonIndex = getRandomPokemonIndex(pokemons.length);
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
-            const pokemonDetails = pokemonResponse.data;
-
-            const typeSlot1 = pokemonDetails.types[0].type.name;
-
-            const pokemonResponse = await axios.get(randomPokemon.url);
 
             randomNumber1 = getRandomNumber(0, 100);
-            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon do tipo`;
+            const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
 
