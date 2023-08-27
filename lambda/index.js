@@ -47,7 +47,7 @@ const GetSorteioPokemonIntentHandler = {
             const typeNames = types.map(type => type.type.name);  // Extrair os nomes dos tipos
 
 
-            randomNumber1 = getRandomNumber(0, 100);
+            const randomNumber1 = getRandomNumber(0, 100);
             const speakOutput = `Encontrando pokemon.....Pokemon Encontrado!!! ${pokemonName},,,,,    Chance de captura: ${randomNumber1} porcento. Você gostaria de capturar este Pokémon ${typeNames}?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
