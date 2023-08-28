@@ -93,6 +93,7 @@ const CapturePokemonIntentHandler = {
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
                 speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro pokemon`;
+                
 
             }
 
@@ -102,6 +103,36 @@ const CapturePokemonIntentHandler = {
         } catch (err) {
             const speakOutput = `Erro ao realizar captura: ${err.message}`;
             console.error(err); 
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        }
+    }
+};
+
+
+const TentarNovamenteIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
+    },
+    handle(handlerInput) {
+        try {
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            const { pokemonName } = sessionAttributes;
+
+            if (pokemonName) {
+                const speakOutput = `Você já possui um Pokémon. Seu Pokémon é ${pokemonName}.`;
+                return handlerInput.responseBuilder
+                    .speak(speakOutput)
+                    .getResponse();
+            } else {
+                // Redireciona de volta para o handler GetSorteioPokemonIntent
+                return GetSorteioPokemonIntentHandler.handle(handlerInput);
+            }
+        } catch (err) {
+            const speakOutput = `Erro ao processar a ação: ${err.message}`;
+            console.error(err);
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .getResponse();
@@ -228,6 +259,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         GetSorteioPokemonIntentHandler,
         HelpIntentHandler,
+        TentarNovamenteIntentHandler,
         CapturePokemonIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler,
