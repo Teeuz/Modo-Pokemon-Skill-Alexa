@@ -140,6 +140,47 @@ const TentarNovamenteIntentHandler = {
     }
 };
 
+
+const TentarNovamenteIntentHandle = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
+    },
+    async handle(handlerInput) {
+        try {
+            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
+            const pokemons = response.data.results;
+
+            const randomPokemonIndex = Math.floor(Math.random() * 151) + 1;
+            const randomPokemon = pokemons[randomPokemonIndex];
+            const pokemonName = randomPokemon.name;
+
+            const pokemonUrl = randomPokemon.url;
+
+            const pokemonResponse = await axios.get(pokemonUrl);
+            const types = pokemonResponse.data.types;
+
+            const typeNames = types.map(type => type.type.name);
+
+            const randomNumber1 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
+            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
+            Você gostaria de tentar capturar este Pokémon?`;
+
+            handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
+                .getResponse();
+        } catch (err) {
+            const speakOutput = `Erro ao realizar busca: ${err.message}`;
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        }
+    }
+};
+
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         GetSorteioPokemonIntentHandler
