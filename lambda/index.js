@@ -46,7 +46,7 @@ const GetSorteioPokemonIntentHandler = {
             const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
             Você gostaria de tentar capturar este Pokémon?`;
 
-            handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1 });
+            handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
             return handlerInput.responseBuilder
                 .speak(speakOutput)
@@ -76,6 +76,7 @@ const CapturePokemonIntentHandler = {
 
             if (randomNumber1 >= randomNumber2) {
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+                 sessionAttributes.captured = true;
             } else {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
