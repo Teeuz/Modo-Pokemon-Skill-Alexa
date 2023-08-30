@@ -22,16 +22,16 @@ const LaunchRequestHandler = {
 };
 
 const GetSorteioPokemonIntentHandler = {
-    canHandle(handlerInput) {
+    canHandle (handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
     },
-    async handle(handlerInput) {
+    handle(handlerInput) {
         try {
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
-            const randomPokemonIndex = Math.floor(Math.random() * 151) + 1;
+            const randomPokemonIndex = Math.floor(Math.random() * 151);
             const randomPokemon = pokemons[randomPokemonIndex];
             const pokemonName = randomPokemon.name;
 
@@ -69,14 +69,20 @@ const CapturePokemonIntentHandler = {
     handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            const { pokemonName, randomNumber1 } = sessionAttributes;
+            const { pokemonName, randomNumber1, captured } = sessionAttributes;
+
+            if (captured) {
+                return handlerInput.responseBuilder
+                    .speak(`Você já capturou o Pokémon ${pokemonName}.`)
+                    .getResponse();
+            }
 
             const randomNumber2 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
             let speakOutput = "";
 
             if (randomNumber1 >= randomNumber2) {
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
-                 sessionAttributes.captured = true;
+                sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
             } else {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
@@ -93,17 +99,17 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
-                speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro pokemon`;
-                
-
+                speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro Pokémon.`;
             }
+
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar captura: ${err.message}`;
-            console.error(err); 
+            console.error(err);
             return handlerInput.responseBuilder
                 .speak(speakOutput)
                 .getResponse();
