@@ -101,9 +101,9 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
-               
+
+                sessionAttributes.captureFailed = true;
                 speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro Pokémon.`;
-                return TentarNovamenteIntentHandler.handle(handlerInput);
             }
 
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
@@ -138,12 +138,15 @@ const TentarNovamenteIntentHandler = {
 
             if (captured) {
                 speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
-            } else {
+            } else if (captureFailed) {
+                speakOutput = "Procurando outro Pokémon...";
+                sessionAttributes.captureFailed = false; // Reseta o atributo captureFailed
                 return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
+    
 
             return handlerInput.responseBuilder
-                .speak(speakOutput) // Use a variável speakOutput aqui
+                .speak(speakOutput) 
                 .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao processar a ação: ${err.message}`;
