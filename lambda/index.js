@@ -22,21 +22,21 @@ const LaunchRequestHandler = {
 };
 
 const typeTranslations = {
-    Normal: 'Normal',
-    Fire: 'Fogo',
-    Water: 'Água',
-    Electric: 'Elétrico',
-    Grass: 'Grama',
-    Ice: 'Gelo',
-    Fighting: 'Lutador',
-    Poison: 'Veneno',
-    Ground: 'Terrestre',
-    Flying: 'Voador',
-    Psychic: 'Psíquico',
-    Bug: 'Inseto',
-    Rock: 'Pedra',
-    Ghost: 'Fantasma',
-    Dragon: 'Dragão'
+    normal: 'Normal',
+    fire: 'Fogo',
+    water: 'Água',
+    electric: 'Elétrico',
+    grass: 'Grama',
+    ice: 'Gelo',
+    fighting: 'Lutador',
+    poison: 'Veneno',
+    ground: 'Terrestre',
+    flying: 'Voador',
+    psychic: 'Psíquico',
+    bug: 'Inseto',
+    rock: 'Pedra',
+    ghost: 'Fantasma',
+    dragon: 'Dragão'
 };
 
 const GetSorteioPokemonIntentHandler = {
@@ -57,8 +57,7 @@ const GetSorteioPokemonIntentHandler = {
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
-            const typeNames = types.map(type => type.type.name);
-            //const typeNames = types.map(type => typeTranslations[type.type.name]); // Usar as traduções
+            const typeNames = types.map(type => typeTranslations[type.type.name]); // Usar as traduções
 
             const randomNumber1 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
             const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${typeNames.join(' e ')}. A chance de captura é de ${randomNumber1}%.
