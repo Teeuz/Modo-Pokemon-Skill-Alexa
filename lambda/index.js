@@ -66,10 +66,12 @@ const CapturePokemonIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
     },
+    
     handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const { pokemonName, randomNumber1, captured } = sessionAttributes;
+            let speakOutput = "";
 
             if (captured) {
                 return handlerInput.responseBuilder
@@ -77,8 +79,8 @@ const CapturePokemonIntentHandler = {
                     .getResponse();
             }
 
-            const randomNumber2 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
-            let speakOutput = "";
+            const randomNumber2 = Math.floor(Math.random() * 101); 
+          
 
             if (randomNumber1 >= randomNumber2) {
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
@@ -127,14 +129,17 @@ const TentarNovamenteIntentHandler = {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const { pokemonName, captured } = sessionAttributes;
+            let speakOutput = ""; // Defina a variável speakOutput aqui
 
             if (captured) {
-                return handlerInput.responseBuilder
-                    .speak(`Você já capturou o Pokémon ${pokemonName}.`)
-                    .getResponse();
+                speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
             } else {
                 return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput) // Use a variável speakOutput aqui
+                .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao processar a ação: ${err.message}`;
             console.error(err);
