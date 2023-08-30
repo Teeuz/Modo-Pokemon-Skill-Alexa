@@ -129,21 +129,19 @@ const TentarNovamenteIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
     },
 
-   
     handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            const { pokemonName, captured } = sessionAttributes;
+            const { pokemonName, captured, captureFailed } = sessionAttributes; // Adicione captureFailed aqui
             let speakOutput = ""; // Defina a variável speakOutput aqui
 
             if (captured) {
                 speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
-            } else if (captureFailed) {
+            } else if (captureFailed) { // Use a variável captureFailed
                 speakOutput = "Procurando outro Pokémon...";
                 sessionAttributes.captureFailed = false; // Reseta o atributo captureFailed
                 return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
-    
 
             return handlerInput.responseBuilder
                 .speak(speakOutput) 
