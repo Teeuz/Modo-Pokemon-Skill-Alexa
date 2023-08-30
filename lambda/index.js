@@ -89,7 +89,7 @@ const CapturePokemonIntentHandler = {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
                     "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
-                    "correu na direção de um penhasco, e o você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
+                    "correu na direção de um penhasco, e você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
                     "escapou, Enquanto você tentava capturar, outro Pokémon selvagem apareceu e distraiu você",
                     "escapou, você não conseguiu reagir a tempo pois estava distraído olhando em outra direção.",
                     "Fugiu assustado pois um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, .",
@@ -125,12 +125,14 @@ const TentarNovamenteIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
     },
+
+   
     handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const { pokemonName, captured } = sessionAttributes;
             let speakOutput = ""; // Defina a variável speakOutput aqui
-
+            pokemonName = "teste";
             if (captured) {
                 speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
             } else {
