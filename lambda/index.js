@@ -145,24 +145,19 @@ const TentarNovamenteIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
     },
-
     handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            const { pokemonName, captured, captureFailed } = sessionAttributes; // Adicione captureFailed aqui
-            let speakOutput = ""; // Defina a variável speakOutput aqui
-
-            if (captured) {
-                speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
-            } else if (captureFailed) { // Use a variável captureFailed
-                return GetSorteioPokemonIntentHandler.handle(handlerInput);
+            
+            if (sessionAttributes.captured) {
+                return handlerInput.responseBuilder
+                    .speak('Você já capturou um Pokémon. Não é possível tentar novamente.')
+                    .getResponse();
             }
 
-            return handlerInput.responseBuilder
-                .speak(speakOutput) 
-                .getResponse();
+        return GetSorteioPokemonIntentHandler.handle(handlerInput); // Chama a função para sortear um novo Pokémon
         } catch (err) {
-            const speakOutput = `Erro ao processar a ação: ${err.message}`;
+            const speakOutput = `Erro ao tentar novamente: ${err.message}`;
             console.error(err);
             return handlerInput.responseBuilder
                 .speak(speakOutput)
@@ -170,7 +165,6 @@ const TentarNovamenteIntentHandler = {
         }
     }
 };
-
 
 
 
