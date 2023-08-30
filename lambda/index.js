@@ -26,7 +26,7 @@ const GetSorteioPokemonIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetSorteioPokemonIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         try {
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
