@@ -12,7 +12,7 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Bem vindo a cidade de Pallet Treinador! me peça para caçar um pokemon!';
+        const speakOutput = 'Bem vindo a cidade de Pallett Treinador! me peça para caçar um pokemon!';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
