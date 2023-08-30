@@ -101,12 +101,15 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
+               
                 speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro Pokémon.`;
+                return TentarNovamenteIntentHandler.handle(handlerInput);
             }
 
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
             return handlerInput.responseBuilder
+
                 .speak(speakOutput)
                 .getResponse();
         } catch (err) {
