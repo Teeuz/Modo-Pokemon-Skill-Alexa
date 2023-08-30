@@ -155,7 +155,15 @@ const TentarNovamenteIntentHandler = {
                     .getResponse();
             }
 
-        return GetSorteioPokemonIntentHandler.handle(handlerInput); // Chama a função para sortear um novo Pokémon
+            return GetSorteioPokemonIntentHandler.handle(handlerInput)
+                .then(response => response)
+                .catch(error => {
+                    const speakOutput = `Erro ao tentar novamente: ${error.message}`;
+                    console.error(error);
+                    return handlerInput.responseBuilder
+                        .speak(speakOutput)
+                        .getResponse();
+                });
         } catch (err) {
             const speakOutput = `Erro ao tentar novamente: ${err.message}`;
             console.error(err);
