@@ -133,6 +133,7 @@ const TentarNovamenteIntentHandler = {
             const { pokemonName, captured } = sessionAttributes;
             let speakOutput = ""; // Defina a variável speakOutput aqui
             pokemonName = "teste";
+            sessionAttributes.captured = true;
             if (captured) {
                 speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
             } else {
