@@ -155,8 +155,6 @@ const TentarNovamenteIntentHandler = {
             if (captured) {
                 speakOutput = `Você já capturou o Pokémon ${pokemonName}.`;
             } else if (captureFailed) { // Use a variável captureFailed
-                speakOutput = "Procurando outro Pokémon...";
-                sessionAttributes.captureFailed = false; // Reseta o atributo captureFailed
                 return GetSorteioPokemonIntentHandler.handle(handlerInput);
             }
 
@@ -172,6 +170,9 @@ const TentarNovamenteIntentHandler = {
         }
     }
 };
+
+
+
 
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
