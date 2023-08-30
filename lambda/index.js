@@ -145,7 +145,7 @@ const TentarNovamenteIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             
@@ -155,15 +155,12 @@ const TentarNovamenteIntentHandler = {
                     .getResponse();
             }
 
-            return GetSorteioPokemonIntentHandler.handle(handlerInput)
-                .then(response => response)
-                .catch(error => {
-                    const speakOutput = `Erro ao tentar novamente: ${error.message}`;
-                    console.error(error);
-                    return handlerInput.responseBuilder
-                        .speak(speakOutput)
-                        .getResponse();
-                });
+            const response = await GetSorteioPokemonIntentHandler.handle(handlerInput);
+            
+            return handlerInput.responseBuilder
+                .speak(response.outputSpeech.ssml)
+                .reprompt(response.reprompt.outputSpeech.ssml)
+                .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao tentar novamente: ${err.message}`;
             console.error(err);
@@ -173,7 +170,6 @@ const TentarNovamenteIntentHandler = {
         }
     }
 };
-
 
 
 exports.handler = Alexa.SkillBuilders.custom()
