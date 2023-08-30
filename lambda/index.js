@@ -57,7 +57,7 @@ const GetSorteioPokemonIntentHandler = {
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
-
+            const typeNames = types.map(type => type.type.name);
             //const typeNames = types.map(type => typeTranslations[type.type.name]); // Usar as traduções
 
             const randomNumber1 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
