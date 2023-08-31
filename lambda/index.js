@@ -126,6 +126,7 @@ const CapturePokemonIntentHandler = {
             console.error(err);
             return handlerInput.responseBuilder
                 .speak(speakOutput)
+                .reprompt(speakOutput)
                 .getResponse();
         }
     }
