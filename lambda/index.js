@@ -110,6 +110,7 @@ const CapturePokemonIntentHandler = {
 
                 const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
                 const randomCapturePhrase = pokemonEscapou[randomIndex];
+                
 
                 sessionAttributes.captureFailed = true;
                 speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro Pokémon.`;
@@ -120,6 +121,7 @@ const CapturePokemonIntentHandler = {
             return handlerInput.responseBuilder
 
                 .speak(speakOutput)
+                .reprompt(speakOutput)
                 .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar captura: ${err.message}`;
