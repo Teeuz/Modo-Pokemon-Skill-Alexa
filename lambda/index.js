@@ -49,7 +49,7 @@ const GetSorteioPokemonIntentHandler = {
             
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.captured) {
-                const speakOutput = 'Você já tem um Pokémon. Não é possível capturar mais um.';
+                const  speakOutput = `Você tem  ${pokemonName} como pokemon inicial, não é possivel capturar outro.`;
                 return handlerInput.responseBuilder
                     .speak(speakOutput)
                     .getResponse();
