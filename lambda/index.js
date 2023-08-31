@@ -49,7 +49,7 @@ const GetSorteioPokemonIntentHandler = {
             
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.captured) {
-                               const speakOutput = `Você já tem ${sessionAttributes.pokemonName} como seu Pokémon inicial. Não é possível capturar outro.`
+                const speakOutput = `Você já tem ${sessionAttributes.pokemonName} como seu Pokémon inicial. Não é possível capturar outro. Fale "Modo batalaha" para iniciar sua jornada `
                 return handlerInput.responseBuilder
                     .speak(speakOutput)
                     .getResponse();
