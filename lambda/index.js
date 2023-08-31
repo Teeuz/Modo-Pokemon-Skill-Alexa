@@ -168,7 +168,7 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         GetSorteioPokemonIntentHandler,
         CapturePokemonIntentHandler,
-        TentarNovamenteIntentHandler 
+        TentarNovamenteIntentHandler
     )
     .lambda();
 
