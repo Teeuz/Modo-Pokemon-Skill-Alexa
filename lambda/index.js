@@ -46,6 +46,15 @@ const GetSorteioPokemonIntentHandler = {
     },
     async handle(handlerInput) {
         try {
+            
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            if (sessionAttributes.captured) {
+                const speakOutput = 'Você já tem um Pokémon. Não é possível capturar mais um.';
+                return handlerInput.responseBuilder
+                    .speak(speakOutput)
+                    .getResponse();
+            }
+            
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
