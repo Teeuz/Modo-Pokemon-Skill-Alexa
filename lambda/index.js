@@ -89,16 +89,8 @@ const CapturePokemonIntentHandler = {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const { pokemonName, randomNumber1, captured } = sessionAttributes;
             let speakOutput = "";
-
-            if (captured) {
-                return handlerInput.responseBuilder
-                    .speak(`Você já capturou o Pokémon ${pokemonName}.`)
-                    .getResponse();
-            }
-
             const randomNumber2 = Math.floor(Math.random() * 101); 
           
-
             if (randomNumber1 >= randomNumber2) {
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
                 sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
