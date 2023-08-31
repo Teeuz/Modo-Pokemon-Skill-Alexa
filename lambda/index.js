@@ -49,7 +49,7 @@ const GetSorteioPokemonIntentHandler = {
             
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.captured) {
-                const  speakOutput = `Você tem  ${pokemonName} como pokemon inicial, não é possivel capturar outro.`;
+                               const speakOutput = `Você já tem ${sessionAttributes.pokemonName} como seu Pokémon inicial. Não é possível capturar outro.`
                 return handlerInput.responseBuilder
                     .speak(speakOutput)
                     .getResponse();
@@ -60,6 +60,7 @@ const GetSorteioPokemonIntentHandler = {
 
             const randomPokemonIndex = Math.floor(Math.random() * 151);
             const randomPokemon = pokemons[randomPokemonIndex];
+            sessionAttributes.pokemonName = randomPokemon.name;
             const pokemonName = randomPokemon.name;
 
             const pokemonUrl = randomPokemon.url;
@@ -87,6 +88,7 @@ const GetSorteioPokemonIntentHandler = {
     }
 };
 
+
 const CapturePokemonIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -102,6 +104,7 @@ const CapturePokemonIntentHandler = {
           
             if (randomNumber1 >= randomNumber2) {
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
+                
                 sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
             } else {
                 const pokemonEscapou = [
