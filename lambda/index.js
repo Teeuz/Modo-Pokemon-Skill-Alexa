@@ -178,12 +178,26 @@ const TentarNovamenteIntentHandler = {
     }
 };
 
+const ModoBatalhaIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ModoBatalhaIntent';
+    },
+    handle(handlerInput) {
+        const speakOutput = 'Modo de batalha está em desenvolvimento.';
+        return handlerInput.responseBuilder
+            .speak(speakOutput)
+            .getResponse();
+    }
+};
+
 
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         GetSorteioPokemonIntentHandler,
         CapturePokemonIntentHandler,
-        TentarNovamenteIntentHandler
+        TentarNovamenteIntentHandler,
+        ModoBatalhaIntentHandler
     )
     .lambda();
 
@@ -300,6 +314,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         GetSorteioPokemonIntentHandler,
         HelpIntentHandler,
+        ModoBatalhaIntentHandler,
         TentarNovamenteIntentHandler,
         CapturePokemonIntentHandler,
         CancelAndStopIntentHandler,
