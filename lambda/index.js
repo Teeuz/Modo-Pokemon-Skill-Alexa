@@ -184,7 +184,7 @@ const ModoBatalhaIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ModoBatalhaIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'Modo de batalha está em desenvolvimento.';
+        const speakOutput = '"Estamos trabalhando duro para trazer a você um Modo de Batalha emocionante! Fique atento, em breve você poderá desfrutar de batalhas épicas com seus Pokémon.';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .getResponse();
