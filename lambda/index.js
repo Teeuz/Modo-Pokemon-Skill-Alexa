@@ -21,139 +21,152 @@ const LaunchRequestHandler = {
     }
 };
 
-const typeTranslations = {
-    normal: 'Normal',
-    fire: 'Fogo',
-    water: 'Água',
-    electric: 'Elétrico',
-    grass: 'Grama',
-    ice: 'Gelo',
-    fighting: 'Lutador',
-    poison: 'Veneno',
-    ground: 'Terrestre',
-    flying: 'Voador',
-    psychic: 'Psíquico',
-    bug: 'Inseto',
-    rock: 'Pedra',
-    ghost: 'Fantasma',
-    dragon: 'Dragão'
-};
-
-const tiposDePokemon = {
+const pokemonData = {
     normal: {
+        nome: 'Normal',
         HP: 100,
         Vida: 100,
         DanoDeAtaque: 20,
         ChanceDeDesvio: 10, // Em porcentagem
         ChanceDeFugir: 20, // Em porcentagem
+        Traducao: 'Normal',
     },
-    fogo: {
+    fire: {
+        nome: 'Fogo',
         HP: 90,
         Vida: 90,
         DanoDeAtaque: 25,
         ChanceDeDesvio: 15,
         ChanceDeFugir: 15,
+        Traducao: 'Fogo',
     },
-    agua: {
+    water: {
+        nome: 'Água',
         HP: 110,
         Vida: 110,
         DanoDeAtaque: 18,
         ChanceDeDesvio: 8,
         ChanceDeFugir: 25,
+        Traducao: 'Água',
     },
     electric: {
+        nome: 'Elétrico',
         HP: 80,
         Vida: 80,
         DanoDeAtaque: 30,
         ChanceDeDesvio: 20,
         ChanceDeFugir: 10,
+        Traducao: 'Elétrico',
     },
     grass: {
+        nome: 'Grama',
         HP: 100,
         Vida: 100,
         DanoDeAtaque: 22,
         ChanceDeDesvio: 12,
         ChanceDeFugir: 15,
+        Traducao: 'Grama',
     },
     ice: {
+        nome: 'Gelo',
         HP: 95,
         Vida: 95,
         DanoDeAtaque: 24,
         ChanceDeDesvio: 12,
         ChanceDeFugir: 18,
+        Traducao: 'Gelo',
     },
     fighting: {
+        nome: 'Lutador',
         HP: 105,
         Vida: 105,
         DanoDeAtaque: 28,
         ChanceDeDesvio: 18,
         ChanceDeFugir: 10,
+        Traducao: 'Lutador',
     },
     poison: {
+        nome: 'Veneno',
         HP: 85,
         Vida: 85,
         DanoDeAtaque: 20,
         ChanceDeDesvio: 10,
         ChanceDeFugir: 20,
+        Traducao: 'Veneno',
     },
     ground: {
+        nome: 'Terrestre',
         HP: 115,
         Vida: 115,
         DanoDeAtaque: 26,
         ChanceDeDesvio: 10,
         ChanceDeFugir: 15,
+        Traducao: 'Terrestre',
     },
     flying: {
+        nome: 'Voador',
         HP: 90,
         Vida: 90,
         DanoDeAtaque: 28,
         ChanceDeDesvio: 20,
         ChanceDeFugir: 15,
+        Traducao: 'Voador',
     },
     psychic: {
+        nome: 'Psíquico',
         HP: 80,
         Vida: 80,
         DanoDeAtaque: 35,
         ChanceDeDesvio: 25,
         ChanceDeFugir: 5,
+        Traducao: 'Psíquico',
     },
     bug: {
+        nome: 'Inseto',
         HP: 85,
         Vida: 85,
         DanoDeAtaque: 22,
         ChanceDeDesvio: 15,
         ChanceDeFugir: 20,
+        Traducao: 'Inseto',
     },
     rock: {
+        nome: 'Pedra',
         HP: 120,
         Vida: 120,
         DanoDeAtaque: 30,
         ChanceDeDesvio: 5,
         ChanceDeFugir: 10,
+        Traducao: 'Pedra',
     },
     ghost: {
+        nome: 'Fantasma',
         HP: 70,
         Vida: 70,
         DanoDeAtaque: 18,
         ChanceDeDesvio: 25,
         ChanceDeFugir: 30,
+        Traducao: 'Fantasma',
     },
     dragon: {
+        nome: 'Dragão',
         HP: 110,
         Vida: 110,
         DanoDeAtaque: 32,
         ChanceDeDesvio: 12,
         ChanceDeFugir: 10,
+        Traducao: 'Dragão',
     },
     noturno: {
+        nome: 'Noturno',
         HP: 75,
         Vida: 75,
         DanoDeAtaque: 20,
         ChanceDeDesvio: 18,
         ChanceDeFugir: 25,
+        Traducao: 'Noturno',
     },
 };
-
 const GetSorteioPokemonIntentHandler = {
     canHandle (handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -161,15 +174,13 @@ const GetSorteioPokemonIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.captured) {
-                const speakOutput = `Você já tem ${sessionAttributes.pokemonName} como seu Pokémon inicial. Não é possível capturar outro. Fale "Modo batalha" para iniciar sua jornada ao lado de ${sessionAttributes.pokemonName}  `
-                return handlerInput.responseBuilder
-                    .speak(speakOutput)
-                    .getResponse();
+                const pokemonName = sessionAttributes.pokemonName;
+                const speakOutput = `Você já tem ${pokemonData[pokemonName].Traducao} como seu Pokémon inicial. Não é possível capturar outro. Fale "Modo batalha" para iniciar sua jornada ao lado de ${pokemonData[pokemonName].Traducao}`;
+                return handlerInput.responseBuilder.speak(speakOutput).getResponse();
             }
-            
+
             const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
             const pokemons = response.data.results;
 
@@ -177,24 +188,23 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             sessionAttributes.pokemonName = randomPokemon.name;
             const pokemonName = randomPokemon.name;
+            const translatedPokemonName = pokemonData[pokemonName].Traducao; // Obtém a tradução do nome
 
             const pokemonUrl = randomPokemon.url;
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
-            const typeNames = types.map(type => typeTranslations[type.type.name]); // Usar as traduções
+            const typeNames = types.map(type => typeTranslations[type.type.name]);
 
-            const hp = tiposDePokemon[typeNames[0]].HP; // Supondo que o primeiro tipo seja o principal
-            const randomNumber1 = Math.floor(Math.random() * 101); // Gera um número aleatório entre 0 e 100
-            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${typeNames.join(' e ')}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%.
-            Você gostaria de tentar capturar este Pokémon?`;
+            const hp = tiposDePokemon[typeNames[0]].HP;
+            const randomNumber1 = Math.floor(Math.random() * 101);
+            const speakOutput = `O Pokémon Encontrado foi: ${translatedPokemonName}! É do tipo ${typeNames.join(
+                ' e '
+            )}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .reprompt('Você gostaria de capturar este Pokémon?')
-                .getResponse();
+            return handlerInput.responseBuilder.speak(speakOutput).reprompt('Você gostaria de capturar este Pokémon?').getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar busca: ${err.message}`;
             return handlerInput.responseBuilder
