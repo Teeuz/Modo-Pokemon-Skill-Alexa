@@ -191,18 +191,17 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             sessionAttributes.pokemonName = randomPokemon.name;
             const pokemonName = randomPokemon.name;
-            const translatedPokemonName = pokemonData[pokemonName].Traducao; // Obtém a tradução do nome
+            const translatedPokemonName = pokemonData[typeName].Traducao; // Obtém a tradução do nome
 
             const pokemonUrl = randomPokemon.url;
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
-            const typeNames = types.map(type => typeTranslations[type.type.name]);
-            const hp = pokemonData[pokemonName].HP; // Corrigido para buscar o HP do objeto pokemonData
+            const firstType = types[0].type.name; // Pega apenas o primeiro tipo da lista de tipos
+            const typeName = typeTranslations[firstType];
+            const hp = pokemonData[typeName].HP; // Corrigido para buscar o HP do objeto pokemonData
             const randomNumber1 = Math.floor(Math.random() * 101);
-            const speakOutput = `O Pokémon Encontrado foi: ${translatedPokemonName}! É do tipo ${typeNames.join(
-                ' e '
-            )}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
+            const speakOutput = `O Pokémon Encontrado foi: ${translatedPokemonName}! É do tipo ${typeName}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
