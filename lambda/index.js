@@ -23,7 +23,6 @@ const LaunchRequestHandler = {
 
 const pokemonData = {
     normal: {
-        nome: 'Normal',
         HP: 100,
         Vida: 100,
         DanoDeAtaque: 20,
@@ -32,7 +31,6 @@ const pokemonData = {
         Traducao: 'Normal',
     },
     fire: {
-        nome: 'Fogo',
         HP: 90,
         Vida: 90,
         DanoDeAtaque: 25,
@@ -41,7 +39,6 @@ const pokemonData = {
         Traducao: 'Fogo',
     },
     water: {
-        nome: 'Água',
         HP: 110,
         Vida: 110,
         DanoDeAtaque: 18,
@@ -50,7 +47,6 @@ const pokemonData = {
         Traducao: 'Água',
     },
     electric: {
-        nome: 'Elétrico',
         HP: 80,
         Vida: 80,
         DanoDeAtaque: 30,
@@ -59,7 +55,6 @@ const pokemonData = {
         Traducao: 'Elétrico',
     },
     grass: {
-        nome: 'Grama',
         HP: 100,
         Vida: 100,
         DanoDeAtaque: 22,
@@ -68,7 +63,6 @@ const pokemonData = {
         Traducao: 'Grama',
     },
     ice: {
-        nome: 'Gelo',
         HP: 95,
         Vida: 95,
         DanoDeAtaque: 24,
@@ -77,7 +71,6 @@ const pokemonData = {
         Traducao: 'Gelo',
     },
     fighting: {
-        nome: 'Lutador',
         HP: 105,
         Vida: 105,
         DanoDeAtaque: 28,
@@ -86,7 +79,6 @@ const pokemonData = {
         Traducao: 'Lutador',
     },
     poison: {
-        nome: 'Veneno',
         HP: 85,
         Vida: 85,
         DanoDeAtaque: 20,
@@ -95,7 +87,6 @@ const pokemonData = {
         Traducao: 'Veneno',
     },
     ground: {
-        nome: 'Terrestre',
         HP: 115,
         Vida: 115,
         DanoDeAtaque: 26,
@@ -104,7 +95,6 @@ const pokemonData = {
         Traducao: 'Terrestre',
     },
     flying: {
-        nome: 'Voador',
         HP: 90,
         Vida: 90,
         DanoDeAtaque: 28,
@@ -113,7 +103,6 @@ const pokemonData = {
         Traducao: 'Voador',
     },
     psychic: {
-        nome: 'Psíquico',
         HP: 80,
         Vida: 80,
         DanoDeAtaque: 35,
@@ -122,7 +111,6 @@ const pokemonData = {
         Traducao: 'Psíquico',
     },
     bug: {
-        nome: 'Inseto',
         HP: 85,
         Vida: 85,
         DanoDeAtaque: 22,
@@ -131,7 +119,6 @@ const pokemonData = {
         Traducao: 'Inseto',
     },
     rock: {
-        nome: 'Pedra',
         HP: 120,
         Vida: 120,
         DanoDeAtaque: 30,
@@ -140,7 +127,6 @@ const pokemonData = {
         Traducao: 'Pedra',
     },
     ghost: {
-        nome: 'Fantasma',
         HP: 70,
         Vida: 70,
         DanoDeAtaque: 18,
@@ -149,7 +135,6 @@ const pokemonData = {
         Traducao: 'Fantasma',
     },
     dragon: {
-        nome: 'Dragão',
         HP: 110,
         Vida: 110,
         DanoDeAtaque: 32,
@@ -158,7 +143,6 @@ const pokemonData = {
         Traducao: 'Dragão',
     },
     noturno: {
-        nome: 'Noturno',
         HP: 75,
         Vida: 75,
         DanoDeAtaque: 20,
@@ -180,7 +164,7 @@ const GetSorteioPokemonIntentHandler = {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (sessionAttributes.captured) {
                 const pokemonName = sessionAttributes.pokemonName;
-                const speakOutput = `Você já tem ${pokemonData[pokemonName].Traducao} como seu Pokémon inicial. Não é possível capturar outro. Fale "Modo batalha" para iniciar sua jornada ao lado de ${pokemonData[pokemonName].Traducao}`;
+                const speakOutput = `Você já tem ${pokemonName} como seu Pokémon inicial. Não é possível capturar outro. Fale "Modo batalha" para iniciar sua jornada ao lado de ${pokemonName}`;
                 return handlerInput.responseBuilder.speak(speakOutput).getResponse();
             }
 
@@ -191,17 +175,18 @@ const GetSorteioPokemonIntentHandler = {
             const randomPokemon = pokemons[randomPokemonIndex];
             sessionAttributes.pokemonName = randomPokemon.name;
             const pokemonName = randomPokemon.name;
-            const translatedPokemonName = pokemonData[typeName].Traducao; // Obtém a tradução do nome
 
             const pokemonUrl = randomPokemon.url;
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
             const firstType = types[0].type.name; // Pega apenas o primeiro tipo da lista de tipos
-            //const typeName = Traducao[firstType];
-            const hp = pokemonData[typeName].HP; // Corrigido para buscar o HP do objeto pokemonData
+            const typeName = typeTranslations[firstType];
+            const hp = pokemonData[typeName].HP;
+            const translatedPokemonName = pokemonData[typeName].Traducao; // Obtém a tradução do nome
+
             const randomNumber1 = Math.floor(Math.random() * 101);
-            const speakOutput = `O Pokémon Encontrado foi: ${translatedPokemonName}! É do tipo . Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
+            const speakOutput = `O Pokémon Encontrado foi: ${translatedPokemonName}! É do tipo ${typeName}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
