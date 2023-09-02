@@ -180,7 +180,7 @@ const GetSorteioPokemonIntentHandler = {
 
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
-            const firstType = types[0].type.name; // Pega apenas o primeiro tipo da lista de tipos
+            const firstType = types[1].type.name; // Pega apenas o primeiro tipo da lista de tipos
             const typeName = typeTranslations[firstType];
             const hp = pokemonData[typeName].HP;
             const translatedPokemonName = pokemonData[typeName].Traducao; // Obtém a tradução do nome
