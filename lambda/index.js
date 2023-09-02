@@ -182,9 +182,10 @@ const GetSorteioPokemonIntentHandler = {
             const types = pokemonResponse.data.types;
             const firstType = types[0].type.name; // Pega o primeiro tipo da lista de tipos
             const hp = pokemonData[firstType].HP;
+            const Type = pokemonData[firstType].Traducao;
             
             const randomNumber1 = Math.floor(Math.random() * 101);
-            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${firstType}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
+            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
