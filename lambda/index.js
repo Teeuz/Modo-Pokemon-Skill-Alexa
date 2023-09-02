@@ -47,14 +47,14 @@ const tiposDePokemon = {
         ChanceDeDesvio: 10, // Em porcentagem
         ChanceDeFugir: 20, // Em porcentagem
     },
-    fire: {
+    fogo: {
         HP: 90,
         Vida: 90,
         DanoDeAtaque: 25,
         ChanceDeDesvio: 15,
         ChanceDeFugir: 15,
     },
-    water: {
+    agua: {
         HP: 110,
         Vida: 110,
         DanoDeAtaque: 18,
