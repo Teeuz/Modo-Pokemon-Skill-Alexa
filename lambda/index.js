@@ -21,6 +21,7 @@ const LaunchRequestHandler = {
     }
 };
 
+
 const pokemonData = {
     normal: {
         HP: 100,
@@ -185,7 +186,7 @@ const GetSorteioPokemonIntentHandler = {
             const Type = pokemonData[firstType].Traducao;
             
             const randomNumber1 = Math.floor(Math.random() * 101);
-            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type}. Tem ${hp} pontos de vida (HP). A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
+            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type}. A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
             handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
 
@@ -197,6 +198,20 @@ const GetSorteioPokemonIntentHandler = {
                 .getResponse();
         }
     }
+};
+
+const CapturedPokemonStatus = {
+     status: {
+        HP: pokemonData[firstType].HP + Math.floor(Math.random() * 100),
+        DanoDeAtaque: pokemonData[firstType].DanoDeAtaque + Math.floor(Math.random() * 50),
+        ChanceDeDesvio:  pokemonData[firstType].ChanceDeDesvio + Math.floor(Math.random() * 10), 
+        ChanceDeFugir: pokemonData[firstType].ChanceDeFugir + Math.floor(Math.random() * 10), 
+    },
+     InfoPoke: {
+        
+    },
+
+
 };
 
 
