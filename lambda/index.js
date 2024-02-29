@@ -216,7 +216,8 @@ const CapturePokemonIntentHandler = {
             let speakOutput = "";
             const randomNumber2 = Math.floor(Math.random() * 101); 
           
-            if (randomNumber1 >= randomNumber2) {
+            if (randomNumber2 >= randomNumber1) {
+                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}. e ficou salvo o pokemon ${pokemon}`;
                 sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
                 var pokemon = {
                     "nome": pokemonName
