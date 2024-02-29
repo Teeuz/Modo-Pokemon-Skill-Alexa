@@ -200,20 +200,6 @@ const GetSorteioPokemonIntentHandler = {
     }
 };
 
-const CapturedPokemonStatus = {
-     status: {
-        HP: pokemonData[firstType].HP + Math.floor(Math.random() * 100),
-        DanoDeAtaque: pokemonData[firstType].DanoDeAtaque + Math.floor(Math.random() * 50),
-        ChanceDeDesvio:  pokemonData[firstType].ChanceDeDesvio + Math.floor(Math.random() * 10), 
-        ChanceDeFugir: pokemonData[firstType].ChanceDeFugir + Math.floor(Math.random() * 10), 
-    },
-     InfoPoke: {
-        
-    },
-
-
-};
-
 
 const CapturePokemonIntentHandler = {
     canHandle(handlerInput) {
