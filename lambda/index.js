@@ -5,6 +5,8 @@
  * */
 const Alexa = require('ask-sdk-core');
 const axios = require('axios');
+const AWS = require ("aws-sdk");
+const ddbAdapter = require ('ask-sdk-dynamodb-persistence-adapter');
 
 
 const LaunchRequestHandler = {
@@ -207,7 +209,7 @@ const CapturePokemonIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
     },
     
-    handle(handlerInput) {
+    async handle(handlerInput) {
         try {
             const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const { pokemonName, randomNumber1, captured } = sessionAttributes;
@@ -215,9 +217,15 @@ const CapturePokemonIntentHandler = {
             const randomNumber2 = Math.floor(Math.random() * 101); 
           
             if (randomNumber1 >= randomNumber2) {
-                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}.`;
-                
                 sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
+                var pokemon = {
+                    "nome": pokemonName
+                };
+                await handlerInput.attributesManager.setPersistentAttributes(pokemon);
+                handlerInput.attributesManager.savePersistentAttributes();
+
+                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}. e ficou salvo o pokemon ${pokemon}`;
+
             } else {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
@@ -436,4 +444,12 @@ exports.handler = Alexa.SkillBuilders.custom()
     .addErrorHandlers(
         ErrorHandler)
     .withCustomUserAgent('sample/hello-world/v1.2')
+    .withPersistenceAdapter(
+        new ddbAdapter.DynamoDbPersistenceAdapter({
+            tableName: Process.env.DYNAMODB_PERSISTENCE_TABLE_NAME,
+            createTable: False,
+            dynamoDBClient: new AWS.DynamoDB({apiVersion: 'latest', region: process.env.DYNAMODB_PERSISTENCE_REGION})
+        })
+
+    )
     .lambda();
