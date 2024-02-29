@@ -12,13 +12,21 @@
         },
         {
           "name": "AMAZON.StopIntent",
-          "samples": []
+          "samples": [
+            "stop",
+            "parar",
+            "fechar ",
+            "Sair"
+          ]
         },
         {
           "slots": [],
           "name": "GetSorteioPokemonIntent",
           "samples": [
-            "sorteio pokemon",
+            "tentar novamente",
+            "encontrar pokemon",
+            "procurar pokemon",
+            "Caçar pokemon",
             "sorteia",
             "sorteio "
           ]
@@ -26,10 +34,43 @@
         {
           "name": "AMAZON.NavigateHomeIntent",
           "samples": []
+        },
+        {
+          "slots": [],
+          "name": "CapturePokemonIntent",
+          "samples": [
+            "caçar novamente",
+            "pegar pokemon",
+            "capturar pokemon",
+            "Pegar",
+            "Sim",
+            "Capturar"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "TentarNovamenteIntent",
+          "samples": [
+            "nao",
+            "não",
+            "imitar dev",
+            "asdasd"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ModoBatalhaIntent",
+          "samples": [
+            "Começar Luta",
+            "Luta pokemon",
+            "batalha ",
+            "Batalha pokemon",
+            "Modo batalha"
+          ]
         }
       ],
       "types": [],
-      "invocationName": "sorteio pokemon"
+      "invocationName": "modo pokemon"
     }
   }
 }

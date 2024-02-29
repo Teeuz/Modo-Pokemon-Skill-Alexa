@@ -1,14 +1,81 @@
 {
   "manifest": {
-    "apis": {
-      "custom": {}
-    },
     "publishingInformation": {
       "locales": {
         "pt-BR": {
-          "name": "sorteio pokemon"
+          "summary": "\"Alexa, Abrir Modo Pokemon\"",
+          "examplePhrases": [
+            "Alexa, Abrir modo pokemon",
+            "Alexa, Caçe um pokemon",
+            "Alexa Ativar Modo batalha"
+          ],
+          "keywords": [
+            "Pokemon."
+          ],
+          "name": "Modo Pokemon",
+          "description": "A Skill \"Modo Pokemon\" para a Alexa é uma experiência interativa e divertida que permite aos usuários realizarem capturar seus próprios Pokémon, treiná-los e levá-los a batalhas empolgantes para fortalecer seus laços e aumentar seus níveis. Seja você um fã de longa data da franquia ou um novato curioso, esta skill oferece uma experiência imersiva que permite que você mergulhe de cabeça no universo dos Pokémon.\n\n(Skill em desenvolvimento)",
+          "smallIconUri": "file://assets/images/pt-BR_smallIconUri.png",
+          "largeIconUri": "file://assets/images/pt-BR_largeIconUri.png"
+        }
+      },
+      "automaticDistribution": {
+        "isActive": false
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "{\"ask_dist_username\":\"\",\"ask_dist_password\":\"\",\"ask_dist_testing_instructions\":\"{\\\"ask_dist_username\\\":\\\"\\\",\\\"ask_dist_password\\\":\\\"\\\"}\"}",
+      "category": "CHILDRENS_MEMORY_GAMES",
+      "distributionMode": "PUBLIC",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:127201612926:function:60c0f282-63ba-43c7-bf76-08fb07e53ac2:Release_2"
+        },
+        "interfaces": [],
+        "locales": {},
+        "regions": {
+          "EU": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:eu-west-1:127201612926:function:60c0f282-63ba-43c7-bf76-08fb07e53ac2:Release_2"
+            }
+          },
+          "NA": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:127201612926:function:60c0f282-63ba-43c7-bf76-08fb07e53ac2:Release_2"
+            }
+          },
+          "FE": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-west-2:127201612926:function:60c0f282-63ba-43c7-bf76-08fb07e53ac2:Release_2"
+            }
+          }
         }
       }
+    },
+    "permissions": [
+      {
+        "name": "alexa:devices:all:address:country_and_postal_code:read"
+      },
+      {
+        "name": "alexa::profile:name:read"
+      }
+    ],
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "locales": {
+        "pt-BR": {
+          "privacyPolicyUrl": "https://docs.google.com/document/d/1A_E2INvDInUTWPs0CNbMPMNMZQHAANbG/edit?usp\u003dsharing\u0026ouid\u003d118212461994840690208\u0026rtpof\u003dtrue\u0026sd\u003dtrue"
+        }
+      },
+      "containsAds": false,
+      "isExportCompliant": true,
+      "isChildDirected": false,
+      "shoppingKit": {
+        "isShoppingActionsEnabled": false,
+        "isAmazonAssociatesOnAlexaEnabled": false
+      },
+      "usesPersonalInfo": false
     }
   }
 }
