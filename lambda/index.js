@@ -229,7 +229,7 @@ const CapturePokemonIntentHandler = {
 
             } else {
                 const pokemonEscapou = [
-                    "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
+                    "escapou, devido à densa vegetação da floresta, que  dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
                     "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
                     "correu na direção de um penhasco, e você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
                     "escapou, Enquanto você tentava capturar, outro Pokémon selvagem apareceu e distraiu você",
