@@ -6,7 +6,7 @@
 const Alexa = require('ask-sdk-core');
 const axios = require('axios');
 const AWS = require ("aws-sdk");
-const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
+const ddbAdapter = require ('ask-sdk-dynamodb-persistence-adapter');
 
 
 const LaunchRequestHandler = {
@@ -184,15 +184,30 @@ const GetSorteioPokemonIntentHandler = {
             const pokemonResponse = await axios.get(pokemonUrl);
             const types = pokemonResponse.data.types;
             const firstType = types[0].type.name; // Pega o primeiro tipo da lista de tipos
-            const hp = pokemonData[firstType].HP;
             const Type = pokemonData[firstType].Traducao;
-            
+            const pokemonRarity = await getPokemonRarity(sessionAttributes.pokemonName);
+
             const randomNumber1 = Math.floor(Math.random() * 101);
-            const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type}. A chance de captura é de ${randomNumber1}%. Você gostaria de tentar capturar este Pokémon?`;
 
-            handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
+            if (pokemonRarity.lendario === true || pokemonRarity.mitico === true) {
+                const tipoRaridade = pokemonRarity.lendario ? 'Lendário' : 'Mítico';
+                const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type} e é um Pokémon ${tipoRaridade}. A chance de captura é de ${pokemonRarity.chanceDeCaptura}%. Você gostaria de tentar capturar este Pokémon?`;
+                handlerInput.attributesManager.setSessionAttributes({ pokemonName, pokemonRarity, captured: false });
 
-            return handlerInput.responseBuilder.speak(speakOutput).reprompt('Você gostaria de capturar este Pokémon?').getResponse();
+                return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
+                .getResponse();
+            }
+            else{
+                const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${Type}. A chance de captura é de ${pokemonRarity.chanceDeCaptura}%. Você gostaria de tentar capturar este Pokémon?`;
+                handlerInput.attributesManager.setSessionAttributes({ pokemonName, randomNumber1, captured: false });
+
+                return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
+                .getResponse();
+            }
         } catch (err) {
             const speakOutput = `Erro ao realizar busca: ${err.message}`;
             return handlerInput.responseBuilder
@@ -205,63 +220,38 @@ const GetSorteioPokemonIntentHandler = {
 
 const CapturePokemonIntentHandler = {
     canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
-            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest' &&
+            Alexa.getIntentName(handlerInput.requestEnvelope) === 'CapturePokemonIntent';
     },
-    
     async handle(handlerInput) {
-        try {
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            const { pokemonName, randomNumber1, captured } = sessionAttributes;
-            let speakOutput = "";
-            const randomNumber2 = Math.floor(Math.random() * 101); 
-          
-            if (randomNumber1 >= randomNumber2) {
-                sessionAttributes.captured = true; // Atualiza para indicar que o Pokémon foi capturado
-                var pokemon = {
-                    "nome": pokemonName
-                };
-                await handlerInput.attributesManager.setPersistentAttributes(pokemon);
-                handlerInput.attributesManager.savePersistentAttributes();
-                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}. e ficou salvo o pokemon ${pokemon.nome}`;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const pokemonRarity = sessionAttributes.pokemonRarity;
 
-            } else {
-                const pokemonEscapou = [
-                    "escapou, devido à densa vegetação da floresta, que  dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
-                    "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
-                    "correu na direção de um penhasco, e você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
-                    "escapou, Enquanto você tentava capturar, outro Pokémon selvagem apareceu e distraiu você",
-                    "escapou, você não conseguiu reagir a tempo pois estava distraído olhando em outra direção.",
-                    "Fugiu assustado pois um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, .",
-                    "É particularmente ágil e conseguiu se esquivar de você de maneira surpreendentemente rápida.",
-                    "percebeu que estava em desvantagem e fugiu para preservar sua própria segurança.",
-                    "escapou sem ser visto. Mudanças repentinas no clima afetaram a sua visibilidade e a mobilidade.",
-                    "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de você."
-                ];
-
-                const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
-                const randomCapturePhrase = pokemonEscapou[randomIndex];
-                
-
-                sessionAttributes.captureFailed = true;
-                speakOutput = `${pokemonName} ${randomCapturePhrase}, Peça para eu tentar novamente para caçar outro Pokémon.`;
-            }
-
-            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
-
-            return handlerInput.responseBuilder
-
-                .speak(speakOutput)
-                .reprompt(speakOutput)
-                .getResponse();
-        } catch (err) {
-            const speakOutput = `Erro ao realizar captura: ${err.message}`;
-            console.error(err);
-            return handlerInput.responseBuilder
-                .speak(speakOutput)
-                .reprompt(speakOutput)
-                .getResponse();
+        if (!sessionAttributes.pokemonName) {
+            return handlerInput.responseBuilder.speak("Você ainda não encontrou um Pokémon para capturar!").getResponse();
         }
+        // Gerando um número aleatório para simular a tentativa de captura
+        const randomNumber = Math.floor(Math.random() * 101);
+        let speakOutput = "";
+
+        if (randomNumber <= pokemonRarity.chanceDeCaptura) {
+            sessionAttributes.captured = true;
+            var pokemon = {
+                "nome": sessionAttributes.pokemonName
+            }; 
+            // Salvando atributos persistentes 
+            await handlerInput.attributesManager.setPersistentAttributes(pokemon);
+            handlerInput.attributesManager.savePersistentAttributes();
+            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}.`;
+        } else {
+
+            speakOutput = await getErroCaptura(sessionAttributes.pokemonName);
+            sessionAttributes.captureFailed = true;
+        }
+
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        return handlerInput.responseBuilder.speak(speakOutput).reprompt(speakOutput).getResponse();
+
     }
 };
 
@@ -423,6 +413,40 @@ const ErrorHandler = {
     }
 };
 
+
+
+    async function getPokemonRarity(pokemonName) {
+        const speciesUrl = `https://pokeapi.co/api/v2/pokemon-species/${pokemonName}/`;
+        const response = await axios.get(speciesUrl);
+        const data = response.data;
+        const captureRate = data.capture_rate;
+        const chanceDeCaptura = Math.round((captureRate / 255) * 100);
+
+        return {
+            nome: pokemonName,
+            chanceDeCaptura: chanceDeCaptura,
+            mitico: data.is_mythical,
+            lendario: data.is_legendary
+        };
+    }
+
+    async function getErroCaptura(pokemonName) {
+
+        const pokemonEscapou = [
+            "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
+            "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
+            "correu na direção de um penhasco, e você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
+            "escapou, Enquanto você tentava capturar, outro Pokémon selvagem apareceu e distraiu você",
+            "escapou, você não conseguiu reagir a tempo pois estava distraído olhando em outra direção.",
+            "Fugiu assustado pois um Pokémon selvagem mais forte apareceu e atacou o Pokémon alvo, .",
+            "É particularmente ágil e conseguiu se esquivar de você de maneira surpreendentemente rápida.",
+            "percebeu que estava em desvantagem e fugiu para preservar sua própria segurança.",
+            "escapou sem ser visto. Mudanças repentinas no clima afetaram a sua visibilidade e a mobilidade.",
+            "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de você."
+        ];
+        const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
+        return `${pokemonName} ${pokemonEscapou[randomIndex]}, Peça para eu tentar novamente para caçar outro Pokémon.`;
+}
 /**
  * This handler acts as the entry point for your skill, routing all request and response
  * payloads to the handlers above. Make sure any new handlers or interceptors you've
