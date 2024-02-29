@@ -6,7 +6,7 @@
 const Alexa = require('ask-sdk-core');
 const axios = require('axios');
 const AWS = require ("aws-sdk");
-const ddbAdapter = require ('ask-sdk-dynamodb-persistence-adapter');
+const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
 
 
 const LaunchRequestHandler = {
