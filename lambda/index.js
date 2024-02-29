@@ -225,8 +225,6 @@ const CapturePokemonIntentHandler = {
                 handlerInput.attributesManager.savePersistentAttributes();
                 speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}. e ficou salvo o pokemon ${pokemon.nome}`;
 
-                speakOutput = `Parabéns! Você capturou o Pokémon ${pokemonName}. e ficou salvo o pokemon ${pokemon}`;
-
             } else {
                 const pokemonEscapou = [
                     "escapou, devido à densa vegetação da floresta, que  dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
