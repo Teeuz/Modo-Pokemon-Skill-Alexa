@@ -85,7 +85,7 @@ const pokemonData = {
         DanoDeAtaque: 20,
         ChanceDeDesvio: 10,
         ChanceDeFugir: 20,
-        Traducao: 'Veneno',
+        Traducao: 'Venenoo',
     },
     ground: {
         HP: 115,
