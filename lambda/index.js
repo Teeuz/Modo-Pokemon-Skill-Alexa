@@ -225,33 +225,59 @@ const CapturePokemonIntentHandler = {
     },
     async handle(handlerInput) {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const pokemonRarity = sessionAttributes.pokemonRarity;
 
+        // Verificar se um Pokémon foi encontrado antes de tentar capturar
         if (!sessionAttributes.pokemonName) {
-            return handlerInput.responseBuilder.speak("Você ainda não encontrou um Pokémon para capturar!").getResponse();
+            return handlerInput.responseBuilder
+                .speak("Você ainda não encontrou um Pokémon para capturar!")
+                .getResponse();
         }
-        // Gerando um número aleatório para simular a tentativa de captura
-        const randomNumber = Math.floor(Math.random() * 101);
+
+        // Supondo que a raridade do Pokémon já tenha sido definida em outra parte do código
+        // Caso não tenha sido, você precisará implementar essa lógica
+        if (!sessionAttributes.pokemonRarity) {
+            return handlerInput.responseBuilder
+                .speak("Houve um problema ao identificar a raridade do Pokémon. Por favor, tente encontrar outro Pokémon.")
+                .getResponse();
+        }
+
+        const pokemonRarity = sessionAttributes.pokemonRarity;
+        const randomNumber = Math.floor(Math.random() * 101); // Número aleatório para simulação de captura
         let speakOutput = "";
 
-        if (randomNumber <= pokemonRarity.chanceDeCaptura) {
-            sessionAttributes.captured = true;
-            var pokemon = {
-                "nome": sessionAttributes.pokemonName
-            }; 
-            // Salvando atributos persistentes 
-            await handlerInput.attributesManager.setPersistentAttributes(pokemon);
-            handlerInput.attributesManager.savePersistentAttributes();
-            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}.`;
-        } else {
+        try {
+            if (randomNumber <= pokemonRarity.chanceDeCaptura) {
+                // Simula a captura bem-sucedida do Pokémon
+                sessionAttributes.captured = true;
+                
+                // Exemplo de como você pode querer salvar um Pokémon capturado
+                // Esta é uma simulação de atribuição, ajuste conforme necessário
+                var pokemon = { "nome": sessionAttributes.pokemonName };
+                
+                // Salvando atributos persistentes
+                await handlerInput.attributesManager.setPersistentAttributes(pokemon);
+                await handlerInput.attributesManager.savePersistentAttributes();
 
-            speakOutput = await getErroCaptura(sessionAttributes.pokemonName);
-            sessionAttributes.captureFailed = true;
+                speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}.`;
+            } else {
+                // Obtém a mensagem de erro de captura caso o Pokémon escape
+                speakOutput = await getErroCaptura(sessionAttributes.pokemonName);
+                sessionAttributes.captureFailed = true;
+            }
+
+            // Atualiza os atributos da sessão após a tentativa de captura
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt("Gostaria de tentar capturar outro Pokémon?")
+                .getResponse();
+        } catch (error) {
+            console.error(`Erro ao capturar Pokémon: ${error}`);
+            return handlerInput.responseBuilder
+                .speak("Desculpe, ocorreu um erro ao tentar capturar o Pokémon. Por favor, tente novamente.")
+                .getResponse();
         }
-
-        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
-        return handlerInput.responseBuilder.speak(speakOutput).reprompt(speakOutput).getResponse();
-
     }
 };
 
