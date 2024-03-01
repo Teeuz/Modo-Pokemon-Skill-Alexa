@@ -186,6 +186,8 @@ const GetSorteioPokemonIntentHandler = {
             const firstType = types[0].type.name; // Pega o primeiro tipo da lista de tipos
             const Type = pokemonData[firstType].Traducao;
             const pokemonRarity = await getPokemonRarity(sessionAttributes.pokemonName);
+            sessionAttributes.pokemonRarity = pokemonRarity;
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
             const randomNumber1 = Math.floor(Math.random() * 101);
 
