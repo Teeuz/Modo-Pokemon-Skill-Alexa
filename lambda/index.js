@@ -14,14 +14,14 @@ const LaunchRequestHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
     handle(handlerInput) {
-        const speakOutput = 'Bem vindo a cidade de Pallett Treinador! me peça para caçar um pokemon!';
-
+        const speakOutput = 'Bem-vindo à cidade de Pallet, Treinador! Peça-me para caçar um Pokémon!';
         return handlerInput.responseBuilder
             .speak(speakOutput)
             .reprompt(speakOutput)
             .getResponse();
     }
 };
+
 
 
 const pokemonData = {
@@ -431,8 +431,7 @@ const ErrorHandler = {
     }
 
     async function getErroCaptura(pokemonName) {
-
-        const pokemonEscapou = [
+    const pokemonEscapou = [
             "escapou, devido à densa vegetação da floresta, que dificultou a captura. Os arbustos e árvores densas permitiram que o Pokémon se escondesse.",
             "conseguiu escapar, na caverna escura, onde sua agilidade e capacidade de se movimentar em ambientes escuros o ajudaram a se esquivar de você.",
             "correu na direção de um penhasco, e você não conseguiu alcançá-lo a tempo antes que ele pulasse para um local inacessível.",
@@ -444,8 +443,8 @@ const ErrorHandler = {
             "escapou sem ser visto. Mudanças repentinas no clima afetaram a sua visibilidade e a mobilidade.",
             "caiu em uma armadilha natural, como uma rede de teia de um Pokémon Bug, permitindo-lhe escapar de você."
         ];
-        const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
-        return `${pokemonName} ${pokemonEscapou[randomIndex]}, Peça para eu tentar novamente para caçar outro Pokémon.`;
+    const randomIndex = Math.floor(Math.random() * pokemonEscapou.length);
+    return `${pokemonName} ${pokemonEscapou[randomIndex]}, Peça para eu tentar novamente para caçar outro Pokémon.`;
 }
 /**
  * This handler acts as the entry point for your skill, routing all request and response
