@@ -121,7 +121,11 @@ const CapturePokemonIntentHandler = {
             // Salvando atributos persistentes 
             await handlerInput.attributesManager.setPersistentAttributes(pokemonData);
             await handlerInput.attributesManager.savePersistentAttributes();
-            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}, com HP de ${sessionAttributes.DanoDeAtaque} `;
+            sessionAttributes.pokemonData = pokemonData;
+
+            // E então, quando for construir sua mensagem...
+            const hp = sessionAttributes.pokemonData.Vida; // Ou DanoDeAtaque, dependendo de qual valor você quer mostrar.
+            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}, com HP de ${hp}`;
         } else {
             speakOutput = await getErroCaptura(sessionAttributes.pokemonName);
             sessionAttributes.captureFailed = true;
