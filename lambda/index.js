@@ -15,8 +15,6 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Bem vindo a cidade de Pallett Treinador! me peça para caçar um pokemon!';
-        handlerInput.attributesManager.setSessionAttributes({});
-
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -63,6 +61,7 @@ const GetSorteioPokemonIntentHandler = {
                 sessionAttributes.pokemonType = firstType; 
 
                 const pokemonRarity = await getPokemonRarity(pokemonName);
+                sessionAttributes.pokemonRarity = pokemonRarity;    
                 const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${traducaoTipo}. A chance de captura é de ${pokemonRarity.chanceDeCaptura}%. Você gostaria de tentar capturar este Pokémon?`;
 
                 handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
@@ -102,7 +101,7 @@ const CapturePokemonIntentHandler = {
         const randomNumber = Math.floor(Math.random() * 101);
         let speakOutput = "";
 
-        if (randomNumber <= pokemonRarity.chanceDeCaptura) {
+        if (pokemonRarity && randomNumber <= pokemonRarity.chanceDeCaptura) {
             sessionAttributes.captured = true;
 
             const StatusPokemon = getStatusInicial(sessionAttributes.pokemonType);
@@ -282,9 +281,8 @@ const ErrorHandler = {
         return true;
     },
     handle(handlerInput, error) {
-        console.log(`Error handled: ${error.message}`);
-        console.log(`Stack Trace: ${error.stack}`);
         const speakOutput = 'Desculpe, tive problemas para fazer o que você pediu. Por favor, tente novamente.';
+        console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
