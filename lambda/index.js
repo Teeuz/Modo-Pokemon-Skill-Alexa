@@ -282,8 +282,9 @@ const ErrorHandler = {
         return true;
     },
     handle(handlerInput, error) {
+        console.log(`Error handled: ${error.message}`);
+        console.log(`Stack Trace: ${error.stack}`);
         const speakOutput = 'Desculpe, tive problemas para fazer o que você pediu. Por favor, tente novamente.';
-        console.log(`~~~~ Error handled: ${JSON.stringify(error)}`);
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
