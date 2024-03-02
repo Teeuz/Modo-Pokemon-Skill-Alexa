@@ -15,6 +15,8 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         const speakOutput = 'Bem vindo a cidade de Pallett Treinador! me peça para caçar um pokemon!';
+        handlerInput.attributesManager.setSessionAttributes({});
+
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
