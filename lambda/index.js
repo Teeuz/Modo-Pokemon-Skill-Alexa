@@ -24,8 +24,6 @@ const LaunchRequestHandler = {
 };
 
 
-
-
 const GetSorteioPokemonIntentHandler = {
     canHandle(handlerInput) {
         return (
@@ -42,39 +40,22 @@ const GetSorteioPokemonIntentHandler = {
                 return handlerInput.responseBuilder.speak(speakOutput).getResponse();
             }
 
-            const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
-            const pokemons = response.data.results;
-
-            const randomPokemonIndex = Math.floor(Math.random() * 151);
-            const randomPokemon = pokemons[randomPokemonIndex];
+            const randomPokemon = await getRandomPokemon();
             sessionAttributes.pokemonName = randomPokemon.name;
-            const pokemonName = randomPokemon.name;
+            sessionAttributes.pokemonType = randomPokemon.types[0]; 
+            sessionAttributes.pokemonRarity = randomPokemon.rarity;
+            
 
-            const pokemonUrl = randomPokemon.url;
-            const pokemonResponse = await axios.get(pokemonUrl);
-            const types = pokemonResponse.data.types;
+            const traducaoTipo = getStatusInicial(sessionAttributes.pokemonType).Traducao;
+            
+            const speakOutput = `O Pokémon Encontrado foi: ${randomPokemon.name}! É do tipo ${traducaoTipo}. A chance de captura é de ${randomPokemon.rarity.chanceDeCaptura}%. Você gostaria de tentar capturar este Pokémon?`;
 
-            if (types.length > 0) {
-                const firstType = types[0].type.name;
-                const statusInicial = getStatusInicial(firstType);
-                const traducaoTipo = statusInicial.Traducao;
-                sessionAttributes.pokemonType = firstType; 
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-                const pokemonRarity = await getPokemonRarity(pokemonName);
-                sessionAttributes.pokemonRarity = pokemonRarity;    
-                const speakOutput = `O Pokémon Encontrado foi: ${pokemonName}! É do tipo ${traducaoTipo}. A chance de captura é de ${pokemonRarity.chanceDeCaptura}%. Você gostaria de tentar capturar este Pokémon?`;
-
-                handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
-
-                return handlerInput.responseBuilder
-                    .speak(speakOutput)
-                    .reprompt('Você gostaria de capturar este Pokémon?')
-                    .getResponse();
-            } else {
-                return handlerInput.responseBuilder
-                    .speak("Houve um problema ao buscar informações sobre o Pokémon. Tente novamente.")
-                    .getResponse();
-            }
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('Você gostaria de capturar este Pokémon?')
+                .getResponse();
         } catch (err) {
             const speakOutput = `Erro ao realizar busca: ${err.message}`;
             return handlerInput.responseBuilder
@@ -115,17 +96,16 @@ const CapturePokemonIntentHandler = {
                 "DefesaDeAtaqueEspecial": StatusPokemon.DefesaDeAtaqueEspecial,
                 "ChanceDeDesvio": StatusPokemon.ChanceDeDesvio,
                 "Velocidade": StatusPokemon.Velocidade,
-                "Traducao": StatusPokemon.Traducao
+                "Traducao": StatusPokemon.Traducao,
+                "Nivel": 1
             }; 
-
             // Salvando atributos persistentes 
             await handlerInput.attributesManager.setPersistentAttributes(pokemonData);
             await handlerInput.attributesManager.savePersistentAttributes();
-            sessionAttributes.pokemonData = pokemonData;
+            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}, com HP de ${StatusPokemon.Vida}. Agora você pode iniciar sua jornada com seu novo Pokémon!`;
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-            // E então, quando for construir sua mensagem...
-            const hp = sessionAttributes.pokemonData.Vida; // Ou DanoDeAtaque, dependendo de qual valor você quer mostrar.
-            speakOutput = `Parabéns! Você capturou ${sessionAttributes.pokemonName}, com HP de ${hp}`;
+
         } else {
             speakOutput = await getErroCaptura(sessionAttributes.pokemonName);
             sessionAttributes.captureFailed = true;
@@ -174,11 +154,39 @@ const ModoBatalhaIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ModoBatalhaIntent';
     },
-    handle(handlerInput) {
-        const speakOutput = '"Estamos trabalhando duro para trazer a você um Modo de Batalha emocionante! Fique atento, em breve você poderá desfrutar de batalhas épicas com seus Pokémon.';
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .getResponse();
+    async handle(handlerInput) {
+        try {
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            if (!sessionAttributes.captured) {
+                const speakOutput = `Você ainda não tem um Pokémon para batalhar. Tente capturar um primeiro!`;
+                return handlerInput.responseBuilder.speak(speakOutput).getResponse();
+            }
+
+            // Gera um Pokémon inimigo com o nível igual ao do Pokémon do usuário
+            const pokemonInimigo = await getRandomPokemon();
+
+            // Ajusta os status do Pokémon inimigo baseando-se no nível
+            for (let i = 1; i < sessionAttributes.pokemonNivel; i++) {
+                levelUpPokemon(pokemonInimigo); // Aplica level up ao Pokémon inimigo
+            }
+
+            // Salva o Pokémon inimigo na sessão
+            sessionAttributes.pokemonInimigo = pokemonInimigo;
+
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+            const speakOutput = `Um ${pokemonInimigo.name} selvagem apareceu! Ele está no nível ${pokemonInimigo.nivel}. Prepare-se para a batalha!`;
+
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .reprompt('O que você gostaria de fazer? Atacar ou fugir?')
+                .getResponse();
+        } catch (err) {
+            const speakOutput = `Erro ao iniciar o modo batalha: ${err.message}`;
+            return handlerInput.responseBuilder
+                .speak(speakOutput)
+                .getResponse();
+        }
     }
 };
 
@@ -402,7 +410,7 @@ function getStatusInicial(type) {
           "Traducao": "Lutador"
         },
         poison: {
-          Vida: 85,
+          "Vida": 85,
           "DanoDeAtaque": 20,
           "AtaqueEspecial": 25,
           "DefesaDeAtaque": 20,
@@ -452,7 +460,7 @@ function getStatusInicial(type) {
           "Traducao": "Inseto"
         },
         rock: {
-          Vida: 95,
+          "Vida": 95,
           "DanoDeAtaque": 30,
           "AtaqueEspecial": 10,
           "DefesaDeAtaque": 35,
@@ -503,6 +511,107 @@ function getStatusInicial(type) {
         "Traducao": "Desconhecido"
     };
 }
+
+async function getRandomPokemon(level = 1) {
+    try {
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon?offset=0&limit=151');
+        const pokemons = response.data.results;
+        const randomPokemonIndex = Math.floor(Math.random() * pokemons.length);
+        const randomPokemon = pokemons[randomPokemonIndex];
+        const pokemonResponse = await axios.get(randomPokemon.url);
+        const pokemonData = pokemonResponse.data;
+
+        // Estrutura para armazenar informações relevantes do Pokémon
+        const pokemon = {
+            name: pokemonData.name,
+            types: pokemonData.types.map(type => type.type.name),
+            imageUrl: pokemonData.sprites.front_default,
+            rarity: await getPokemonRarity(pokemonData.name),
+            nivel: level // Inicializa com o nível fornecido
+        };
+
+        return pokemon;
+    } catch (error) {
+        console.error("Erro ao buscar Pokémon aleatório:", error);
+        throw error;
+    }
+}
+
+
+function levelUpPokemon(pokemonData) {
+    // Define incrementos base para cada status
+    let vidaIncremento = 10; 
+    let DanoDeAtaqueIncremento = 5; 
+    let ataqueEspecialIncremento = 5;
+    let defesaDeAtaqueIncremento = 3;
+    let defesaDeAtaqueEspecialIncremento = 3;
+    let chanceDeDesvioIncremento = 2;
+    let VelocidadeIncremento = 2; 
+
+    // Ajusta os incrementos base com base no tipo do Pokémon
+    switch (pokemonData.tipo) {
+        case 'Normal':
+            VelocidadeIncremento = 3; 
+            break;
+        case 'Fogo':
+            ataqueEspecialIncremento = 7; 
+            break;
+        case 'Água':
+            ataqueEspecialIncremento = 7; 
+            break;
+        case 'Grama':
+            defesaDeAtaqueEspecialIncremento = 5; 
+            break;
+        case 'Gelo':
+            ataqueEspecialIncremento = 7; 
+            break;
+        case 'Lutador':
+            defesaDeAtaqueIncremento = 5; 
+             break;
+        case 'Venenoso':
+            defesaDeAtaqueEspecialIncremento = 5; 
+            break;       
+        case 'Terrestre':
+            defesaDeAtaqueIncremento = 5;
+            break;  
+        case 'Voador':
+            VelocidadeIncremento = 3; 
+            break;  
+        case 'Psíquico':
+            ataqueEspecialIncremento = 7; 
+             break;  
+        case 'Inseto' :
+            ataqueEspecialIncremento = 7; 
+            break;  
+        case 'Pedra':
+            vidaIncremento = 15; 
+            break; 
+        case 'Fantasma':
+            chanceDeDesvioIncremento = 4; 
+            break;  
+        case 'Dragão':
+            ataqueEspecialIncremento = 7; 
+            break;  
+        case 'Noturno':
+            DanoDeAtaqueIncremento = 7; 
+            break;
+        case 'Elétrico':
+            VelocidadeIncremento = 3; 
+            break;  
+    }
+
+    // Aplica os incrementos aos status do Pokémon
+    pokemonData.Vida += Math.floor(Math.random() * (vidaIncremento + 1));
+    pokemonData.DanoDeAtaque += Math.floor(Math.random() * (DanoDeAtaqueIncremento + 1));
+    pokemonData.AtaqueEspecial += Math.floor(Math.random() * (ataqueEspecialIncremento + 1));
+    pokemonData.DefesaDeAtaque += Math.floor(Math.random() * (defesaDeAtaqueIncremento + 1));
+    pokemonData.DefesaDeAtaqueEspecial += Math.floor(Math.random() * (defesaDeAtaqueEspecialIncremento + 1));
+    pokemonData.ChanceDeDesvio += Math.floor(Math.random() * (chanceDeDesvioIncremento + 1));
+    pokemonData.Velocidade += Math.floor(Math.random() * (VelocidadeIncremento + 1));
+    
+    return pokemonData;
+}
+
 /**
  * This handler acts as the entry point for your skill, routing all request and response
  * payloads to the handlers above. Make sure any new handlers or interceptors you've
