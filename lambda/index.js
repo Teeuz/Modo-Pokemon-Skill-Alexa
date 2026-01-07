@@ -450,7 +450,7 @@ const NoIntentHandler = {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.NoIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.state === SESSION_STATES.RESPEC_MENU) {
             return handleRespecDecision(handlerInput, sessionAttributes, false);
