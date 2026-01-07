@@ -3,17 +3,19 @@
     "publishingInformation": {
       "locales": {
         "pt-BR": {
-          "summary": "\"Alexa, Abrir Modo Pokemon\"",
+          "summary": "Alexa, abrir Modo Pokémon",
           "examplePhrases": [
-            "Alexa, Abrir modo pokemon",
-            "Alexa, Caçe um pokemon",
-            "Alexa Ativar Modo batalha"
+            "Alexa, abrir modo Pokémon",
+            "Alexa, caçar um Pokémon",
+            "Alexa, ativar modo batalha"
           ],
           "keywords": [
-            "Pokemon."
+            "Pokémon",
+            "batalha",
+            "captura"
           ],
-          "name": "Modo Pokemon",
-          "description": "A Skill \"Modo Pokemon\" para a Alexa é uma experiência interativa e divertida que permite aos usuários realizarem capturar seus próprios Pokémon, treiná-los e levá-los a batalhas empolgantes para fortalecer seus laços e aumentar seus níveis. Seja você um fã de longa data da franquia ou um novato curioso, esta skill oferece uma experiência imersiva que permite que você mergulhe de cabeça no universo dos Pokémon.\n\n(Skill em desenvolvimento)",
+          "name": "Modo Pokémon",
+          "description": "A Skill \"Modo Pokémon\" para a Alexa é uma experiência interativa e divertida que permite aos usuários capturarem seus próprios Pokémon, treiná-los e levá-los a batalhas empolgantes para fortalecer seus laços e aumentar seus níveis. Seja você um fã de longa data da franquia ou um novato curioso, esta skill oferece uma experiência imersiva que permite que você mergulhe de cabeça no universo dos Pokémon.\n\n(Skill em desenvolvimento)",
           "smallIconUri": "file://assets/images/pt-BR_smallIconUri.png",
           "largeIconUri": "file://assets/images/pt-BR_largeIconUri.png"
         }
@@ -65,7 +67,7 @@
       "allowsPurchases": false,
       "locales": {
         "pt-BR": {
-          "privacyPolicyUrl": "https://docs.google.com/document/d/1A_E2INvDInUTWPs0CNbMPMNMZQHAANbG/edit?usp\u003dsharing\u0026ouid\u003d118212461994840690208\u0026rtpof\u003dtrue\u0026sd\u003dtrue"
+          "privacyPolicyUrl": "https://docs.google.com/document/d/1A_E2INvDInUTWPs0CNbMPMNMZQHAANbG/edit?usp=sharing&ouid=118212461994840690208&rtpof=true&sd=true"
         }
       },
       "containsAds": false,

@@ -123,6 +123,19 @@
         },
         {
           "slots": [],
+          "name": "ResetProgressIntent",
+          "samples": [
+            "resetar progresso",
+            "resetar jogo",
+            "zerar progresso",
+            "apagar progresso",
+            "apagar meus dados",
+            "comecar do zero",
+            "quero comecar do zero"
+          ]
+        },
+        {
+          "slots": [],
           "name": "AtacarIntent",
           "samples": [
             "atacar",
@@ -137,6 +150,17 @@
           "samples": [
             "especial",
             "ataque especial",
+            "golpe especial",
+            "usar especial"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "GymSpecialIntent",
+          "samples": [
+            "especial",
+            "ataque especial",
+            "golpe especial",
             "usar especial"
           ]
         },
@@ -151,6 +175,16 @@
           ]
         },
         {
+          "slots": [],
+          "name": "GymDefendIntent",
+          "samples": [
+            "defender",
+            "defesa",
+            "me defender",
+            "proteger"
+          ]
+        },
+        {
           "slots": [
             {
               "name": "item",
@@ -158,6 +192,23 @@
             }
           ],
           "name": "UsarItemIntent",
+          "samples": [
+            "usar item",
+            "usar {item}",
+            "usar pocao",
+            "usar super pocao",
+            "pocao",
+            "super pocao"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "item",
+              "type": "ITEM_TYPE"
+            }
+          ],
+          "name": "GymItemIntent",
           "samples": [
             "usar item",
             "usar {item}",

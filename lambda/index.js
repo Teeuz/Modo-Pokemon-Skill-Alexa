@@ -22,7 +22,7 @@ const SHORT_CONFIRM_REPROMPT = 'Quer continuar?';
 const SHORT_START_GYM_REPROMPT = 'Quer comecar?';
 const SHORT_CAPTURE_REPROMPT = 'Quer capturar?';
 const SHORT_RETRY_REPROMPT = 'Quer tentar novamente?';
-const SHORT_BATTLE_REPROMPT = 'Atacar ou fugir?';
+const SHORT_BATTLE_REPROMPT = BATTLE_MENU_REPROMPT;
 const SHORT_GENERATION_REPROMPT = 'Diga um numero de geracao.';
 const SHORT_HELP_REPROMPT = 'Diga cacar pokemon ou modo batalha.';
 const SHORT_CATCH_PROMPT = 'Peca para cacar um Pokemon.';
@@ -34,7 +34,7 @@ const OPTIONS_POST_BOSS = 'Diga manter ou capturar novo.';
 const OPTIONS_CAPTURE_REWARD = 'Diga sim para trocar ou nao para manter.';
 const OPTIONS_IDLE_WITH_POKEMON = 'Voce pode dizer modo batalha ou entrar no ginasio.';
 const OPTIONS_IDLE_NO_POKEMON = 'Voce pode dizer cacar pokemon.';
-const OPTIONS_WILD_BATTLE = 'Voce pode atacar ou fugir.';
+const OPTIONS_WILD_BATTLE = BATTLE_MENU_SPEECH;
 const ALLOCATE_POINTS_PROMPT = 'Quer colocar em Vida, Ataque, Especial, Defesa, Defesa especial, Velocidade ou Desvio?';
 const ALLOCATE_POINTS_REPROMPT = 'Vida, Ataque, Especial, Defesa, Defesa especial, Velocidade ou Desvio?';
 const ALLOCATE_POINTS_CONTINUE_PROMPT = 'Pontos distribuidos. Quer continuar para a proxima batalha?';
@@ -44,6 +44,8 @@ const POST_BOSS_CHOICE_REPROMPT = 'Manter ou capturar novo?';
 const RESPEC_MENU_PROMPT = 'Voce quer redistribuir seus pontos agora?';
 const RESPEC_MENU_REPROMPT = 'Sim ou nao?';
 const CAPTURE_REWARD_REPROMPT = 'Quer trocar?';
+const RESET_CONFIRM_PROMPT = 'Tem certeza que deseja apagar todo o seu progresso e comecar do zero?';
+const RESET_CONFIRM_REPROMPT = 'Diga sim para confirmar ou nao para cancelar.';
 const SESSION_STATES = {
     IDLE: 'IDLE',
     GYM_CONFIRM_START: 'GYM_CONFIRM_START',
@@ -52,9 +54,30 @@ const SESSION_STATES = {
     ALLOCATE_POINTS: 'ALLOCATE_POINTS',
     POST_BOSS_CHOICE: 'POST_BOSS_CHOICE',
     CAPTURE_NEW_REWARD: 'CAPTURE_NEW_REWARD',
-    RESPEC_MENU: 'RESPEC_MENU'
+    RESPEC_MENU: 'RESPEC_MENU',
+    RESET_CONFIRM: 'RESET_CONFIRM'
 };
 const SESSION_STATE_VALUES = new Set(Object.values(SESSION_STATES));
+const TYPE_CHART = {
+    normal: { rock: 0.5, ghost: 0, steel: 0.5 },
+    fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
+    water: { fire: 2, water: 0.5, grass: 0.5, ground: 2, rock: 2, dragon: 0.5 },
+    electric: { water: 2, electric: 0.5, grass: 0.5, ground: 0, flying: 2, dragon: 0.5 },
+    grass: { fire: 0.5, water: 2, grass: 0.5, poison: 0.5, ground: 2, flying: 0.5, bug: 0.5, rock: 2, dragon: 0.5, steel: 0.5 },
+    ice: { fire: 0.5, water: 0.5, grass: 2, ice: 0.5, ground: 2, flying: 2, dragon: 2, steel: 0.5 },
+    fighting: { normal: 2, ice: 2, rock: 2, dark: 2, steel: 2, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, ghost: 0, fairy: 0.5 },
+    poison: { grass: 2, fairy: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0 },
+    ground: { fire: 2, electric: 2, grass: 0.5, poison: 2, flying: 0, bug: 0.5, rock: 2, steel: 2 },
+    flying: { electric: 0.5, grass: 2, fighting: 2, bug: 2, rock: 0.5, steel: 0.5 },
+    psychic: { fighting: 2, poison: 2, psychic: 0.5, steel: 0.5, dark: 0 },
+    bug: { fire: 0.5, grass: 2, fighting: 0.5, poison: 0.5, flying: 0.5, psychic: 2, ghost: 0.5, dark: 2, steel: 0.5, fairy: 0.5 },
+    rock: { fire: 2, ice: 2, fighting: 0.5, ground: 0.5, flying: 2, bug: 2, steel: 0.5 },
+    ghost: { normal: 0, psychic: 2, ghost: 2, dark: 0.5 },
+    dragon: { dragon: 2, steel: 0.5, fairy: 0 },
+    dark: { fighting: 0.5, psychic: 2, ghost: 2, dark: 0.5, fairy: 0.5 },
+    steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
+    fairy: { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 }
+};
 
 const LoadPersistentAttributesInterceptor = {
     async process(handlerInput) {
@@ -288,6 +311,7 @@ const ModoBatalhaIntentHandler = {
                 pokemonInimigoBase.type,
                 playerPokemon.level || DEFAULT_LEVEL
             );
+            applyWildEarlyGameScaling(pokemonInimigo, playerPokemon);
 
             const enemyMaxHp = getEnemyMaxHp(pokemonInimigo);
             const playerMaxHp = getPlayerMaxHp(playerPokemon);
@@ -298,13 +322,13 @@ const ModoBatalhaIntentHandler = {
                 ? clampNumber(Number(pokemonInimigo.hpCurrent), 0, enemyMaxHp)
                 : enemyMaxHp;
 
+            pokemonInimigo.hpCurrent = enemyHp;
+            const battle = createGymBattleState(playerPokemon, pokemonInimigo, playerHp);
             sessionAttributes.battle = {
-                enemy: pokemonInimigo,
-                playerHpCurrent: playerHp,
-                enemyHpCurrent: enemyHp,
-                turn: 1
+                ...battle,
+                enemy: pokemonInimigo
             };
-            playerPokemon.hpCurrent = playerHp;
+            playerPokemon.hpCurrent = battle.playerHpCurrent;
             sessionAttributes.pokemon = playerPokemon;
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
@@ -370,6 +394,9 @@ const YesIntentHandler = {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         if (sessionAttributes.state === SESSION_STATES.RESPEC_MENU) {
             return handleRespecDecision(handlerInput, sessionAttributes, true);
+        }
+        if (sessionAttributes.state === SESSION_STATES.RESET_CONFIRM) {
+            return handleResetProgressConfirm(handlerInput, sessionAttributes);
         }
         if (sessionAttributes.state === SESSION_STATES.CAPTURE_NEW_REWARD) {
             return acceptRewardPokemon(handlerInput, sessionAttributes);
@@ -482,6 +509,18 @@ const NoIntentHandler = {
         if (sessionAttributes.state === SESSION_STATES.RESPEC_MENU) {
             return handleRespecDecision(handlerInput, sessionAttributes, false);
         }
+        if (sessionAttributes.state === SESSION_STATES.RESET_CONFIRM) {
+            const previousState = sessionAttributes.resetPreviousState;
+            if (SESSION_STATE_VALUES.has(previousState)) {
+                sessionAttributes.state = previousState;
+            } else {
+                sessionAttributes.state = SESSION_STATES.IDLE;
+            }
+            delete sessionAttributes.resetPreviousState;
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            const speakOutput = 'Tudo bem, nao vou apagar seu progresso.';
+            return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+        }
         if (sessionAttributes.state === SESSION_STATES.CAPTURE_NEW_REWARD) {
             return finalizeBossChoice(handlerInput, sessionAttributes, 'Tudo bem, voce manteve seu Pokemon atual.');
         }
@@ -569,6 +608,16 @@ const GymItemIntentHandler = {
     },
     async handle(handlerInput) {
         const itemSlot = Alexa.getSlotValue(handlerInput.requestEnvelope, 'item');
+        if (!itemSlot || !String(itemSlot).trim()) {
+            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+            const speakOutput = 'Qual item voce quer usar? Pocao ou super pocao?';
+            return buildResponseWithOptions(
+                handlerInput,
+                sessionAttributes,
+                speakOutput,
+                { text: speakOutput, reprompt: 'Diga pocao ou super pocao.' }
+            );
+        }
         return handleGymBattleAction(handlerInput, 'item', itemSlot);
     }
 };
@@ -710,6 +759,18 @@ const CaptureNewPokemonIntentHandler = {
             const speakOutput = 'Desculpe, nao consegui sortear o novo Pokemon agora. Tente novamente.';
             return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
         }
+    }
+};
+
+const ResetProgressIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ResetProgressIntent';
+    },
+    handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        sessionAttributes.resetPreviousState = sessionAttributes.state;
+        return buildResetConfirmResponse(handlerInput, sessionAttributes);
     }
 };
 
@@ -864,6 +925,9 @@ const HelpIntentHandler = {
         if (sessionAttributes.state === SESSION_STATES.RESPEC_MENU) {
             return buildRespecMenuResponse(handlerInput, sessionAttributes);
         }
+        if (sessionAttributes.state === SESSION_STATES.RESET_CONFIRM) {
+            return buildResetConfirmResponse(handlerInput, sessionAttributes);
+        }
 
         const speakOutput = 'Voce pode pedir para eu procurar um Pokemon, entrar no ginasio ou dizer "modo batalha".';
 
@@ -919,6 +983,9 @@ const FallbackIntentHandler = {
         }
         if (sessionAttributes.state === SESSION_STATES.RESPEC_MENU) {
             return buildRespecMenuResponse(handlerInput, sessionAttributes, 'Nao entendi.');
+        }
+        if (sessionAttributes.state === SESSION_STATES.RESET_CONFIRM) {
+            return buildResetConfirmResponse(handlerInput, sessionAttributes, 'Nao entendi.');
         }
 
         const speakOutput = 'Nao entendi o que voce disse. Tente novamente.';
@@ -1461,6 +1528,34 @@ function clampNumber(value, min, max) {
     return Math.min(Math.max(value, min), max);
 }
 
+function getTypeMultiplier(attackerType, defenderType) {
+    const attackerKey = typeof attackerType === 'string' ? attackerType.toLowerCase() : '';
+    const defenderKey = typeof defenderType === 'string' ? defenderType.toLowerCase() : '';
+    if (!attackerKey || !defenderKey || !TYPE_CHART[attackerKey]) {
+        return 1;
+    }
+
+    const row = TYPE_CHART[attackerKey];
+    if (Object.prototype.hasOwnProperty.call(row, defenderKey)) {
+        return row[defenderKey];
+    }
+
+    return 1;
+}
+
+function getEffectivenessMessage(multiplier) {
+    if (multiplier >= 1.5) {
+        return 'Foi super efetivo!';
+    }
+    if (multiplier === 0) {
+        return 'Nao teve efeito!';
+    }
+    if (multiplier > 0 && multiplier <= 0.75) {
+        return 'Nao foi muito efetivo...';
+    }
+    return '';
+}
+
 function getPlayerMaxHp(playerPokemon) {
     if (!playerPokemon || !playerPokemon.stats) {
         return 0;
@@ -1477,6 +1572,31 @@ function getEnemyMaxHp(enemy) {
     return Number(enemy.maxHp || (enemy.stats && enemy.stats.Vida)) || 0;
 }
 
+function applyWildEarlyGameScaling(enemy, playerPokemon) {
+    if (!enemy || !enemy.stats || !playerPokemon) {
+        return;
+    }
+
+    const playerLevel = Math.max(1, Number(playerPokemon.level) || DEFAULT_LEVEL);
+    if (playerLevel > 4) {
+        return;
+    }
+
+    const stats = enemy.stats;
+    const scaled = {
+        ...stats,
+        Vida: Math.max(1, Math.ceil((Number(stats.Vida) || 0) * 0.8)),
+        DefesaDeAtaque: Math.max(1, Math.ceil((Number(stats.DefesaDeAtaque) || 0) * 0.9)),
+        DefesaDeAtaqueEspecial: Math.max(1, Math.ceil((Number(stats.DefesaDeAtaqueEspecial) || 0) * 0.9)),
+        DanoDeAtaque: Math.max(1, Math.ceil((Number(stats.DanoDeAtaque) || 0) * 0.9)),
+        AtaqueEspecial: Math.max(1, Math.ceil((Number(stats.AtaqueEspecial) || 0) * 0.9))
+    };
+
+    enemy.stats = scaled;
+    enemy.maxHp = scaled.Vida;
+    enemy.hpCurrent = enemy.maxHp;
+}
+
 function renderBattleStatus(playerPokemon, enemy) {
     const playerMaxHp = getPlayerMaxHp(playerPokemon);
     const enemyMaxHp = getEnemyMaxHp(enemy);
@@ -1491,7 +1611,7 @@ function renderBattleStatus(playerPokemon, enemy) {
         enemyMaxHp
     );
 
-    return `Seu HP: ${playerHp}/${playerMaxHp}. Inimigo HP: ${enemyHp}/${enemyMaxHp}.`;
+    return `Seu HP: ${playerHp}. Inimigo HP: ${enemyHp}.`;
 }
 
 function getXpToNext(level) {
@@ -1799,6 +1919,12 @@ function ensureWildBattleState(sessionAttributes, playerPokemon) {
     battle.playerHpCurrent = clampNumber(rawPlayerHp, 0, playerMaxHp);
     battle.enemyHpCurrent = clampNumber(rawEnemyHp, 0, enemyMaxHp);
     battle.turn = Number(battle.turn || 1);
+    battle.energy = Number(battle.energy) || 0;
+    battle.enemyEnergy = Number(battle.enemyEnergy) || 0;
+    battle.specialCooldown = Number(battle.specialCooldown) || 0;
+    battle.enemySpecialCooldown = Number(battle.enemySpecialCooldown) || 0;
+    battle.defending = Boolean(battle.defending);
+    battle.statuses = Array.isArray(battle.statuses) ? battle.statuses : [];
 
     playerPokemon.hpCurrent = battle.playerHpCurrent;
     enemy.hpCurrent = battle.enemyHpCurrent;
@@ -1841,6 +1967,9 @@ function getDefaultOptions(sessionAttributes) {
     if (state === SESSION_STATES.RESPEC_MENU) {
         return { text: RESPEC_MENU_PROMPT, reprompt: RESPEC_MENU_REPROMPT };
     }
+    if (state === SESSION_STATES.RESET_CONFIRM) {
+        return { text: RESET_CONFIRM_PROMPT, reprompt: RESET_CONFIRM_REPROMPT };
+    }
     if (state === SESSION_STATES.GYM_CONFIRM_START) {
         return { text: OPTIONS_GYM_CONFIRM, reprompt: SHORT_YES_NO_PROMPT };
     }
@@ -1854,7 +1983,7 @@ function getDefaultOptions(sessionAttributes) {
     }
 
     if (hasWildBattle) {
-        return { text: OPTIONS_WILD_BATTLE, reprompt: SHORT_BATTLE_REPROMPT };
+        return { text: BATTLE_MENU_SPEECH, reprompt: BATTLE_MENU_REPROMPT };
     }
 
     if (hasPokemon) {
@@ -1934,6 +2063,18 @@ function buildRespecMenuResponse(handlerInput, sessionAttributes, extraSpeech) {
         sessionAttributes,
         speakOutput,
         { text: RESPEC_MENU_PROMPT, reprompt: RESPEC_MENU_REPROMPT }
+    );
+}
+
+function buildResetConfirmResponse(handlerInput, sessionAttributes, extraSpeech) {
+    sessionAttributes.state = SESSION_STATES.RESET_CONFIRM;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+    const speakOutput = extraSpeech || '';
+    return buildResponseWithOptions(
+        handlerInput,
+        sessionAttributes,
+        speakOutput,
+        { text: RESET_CONFIRM_PROMPT, reprompt: RESET_CONFIRM_REPROMPT }
     );
 }
 
@@ -2023,26 +2164,38 @@ function resolveItemKey(slotValue, player) {
     return null;
 }
 
-function performAttack(attackerStats, attackerLevel, defenderStats, defenderMaxHp, defenderDefending, baseChance, isSpecial) {
+function performAttack(
+    attackerStats,
+    attackerLevel,
+    defenderStats,
+    defenderMaxHp,
+    defenderDefending,
+    baseChance,
+    isSpecial,
+    attackerType,
+    defenderType
+) {
     const hitChance = getHitChance(baseChance, attackerStats, defenderStats);
     if (!rollHit(hitChance)) {
-        return { hit: false, damage: 0 };
+        return { hit: false, damage: 0, multiplier: 1 };
     }
 
     const baseDamage = isSpecial ? attackerStats.AtaqueEspecial : attackerStats.DanoDeAtaque;
     const defense = isSpecial ? defenderStats.DefesaDeAtaqueEspecial : defenderStats.DefesaDeAtaque;
-    const damage = calculateDamage(
+    const baseDamageValue = calculateDamage(
         Number(baseDamage) || 0,
         Number(attackerLevel) || DEFAULT_LEVEL,
         Number(defense) || 0,
         defenderMaxHp,
         defenderDefending
     );
+    const multiplier = getTypeMultiplier(attackerType, defenderType);
+    const scaledDamage = multiplier === 0 ? 0 : Math.max(0, Math.floor(baseDamageValue * multiplier));
 
-    return { hit: true, damage };
+    return { hit: true, damage: scaledDamage, multiplier };
 }
 
-async function handleWildBattleAction(handlerInput, actionType) {
+async function handleWildBattleAction(handlerInput, actionType, itemSlotValue) {
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const battleState = sessionAttributes.battle;
 
@@ -2072,13 +2225,83 @@ async function handleWildBattleAction(handlerInput, actionType) {
         return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
     }
 
+    const player = getPlayer(sessionAttributes);
     const playerStats = playerPokemon.stats || {};
     const enemyStats = enemy.stats || {};
     const playerMaxHp = getPlayerMaxHp(playerPokemon);
     const enemyMaxHp = getEnemyMaxHp(enemy);
+    const playerLevel = Math.max(1, Number(playerPokemon.level) || DEFAULT_LEVEL);
+    const isEarlyWild = playerLevel <= 4;
+    const playerFastChance = isEarlyWild ? 90 : 85;
+    const playerSpecialChance = isEarlyWild ? 82 : 75;
+    const enemyFastChance = isEarlyWild ? 75 : 85;
+    const enemySpecialChance = isEarlyWild ? 65 : 75;
+    const playerFastEnergyGain = isEarlyWild ? 20 : 15;
+    let playerUsedSpecial = false;
+    let enemyUsedSpecial = false;
     const messages = [];
 
-    if (actionType === 'flee') {
+    if (actionType === 'special') {
+        if (battle.energy < 50) {
+            const statusMessage = renderBattleStatus(playerPokemon, enemy);
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            const speakOutput = `Voce nao tem energia suficiente para o especial. ${statusMessage}`;
+            return buildBattleMenuResponse(handlerInput, sessionAttributes, speakOutput);
+        }
+        if (battle.specialCooldown > 0) {
+            const statusMessage = renderBattleStatus(playerPokemon, enemy);
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            const speakOutput = `Seu especial esta em recarga. ${statusMessage}`;
+            return buildBattleMenuResponse(handlerInput, sessionAttributes, speakOutput);
+        }
+    }
+
+    if (actionType === 'item') {
+        if (!itemSlotValue || !String(itemSlotValue).trim()) {
+            const speakOutput = 'Qual item voce quer usar? Pocao ou super pocao?';
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            return buildResponseWithOptions(
+                handlerInput,
+                sessionAttributes,
+                speakOutput,
+                { text: speakOutput, reprompt: 'Diga pocao ou super pocao.' }
+            );
+        }
+        const itemKey = resolveItemKey(itemSlotValue, player);
+        if (!itemKey) {
+            const statusMessage = renderBattleStatus(playerPokemon, enemy);
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            const speakOutput = `Voce nao tem itens disponiveis. ${statusMessage}`;
+            return buildBattleMenuResponse(handlerInput, sessionAttributes, speakOutput);
+        }
+
+        if (!player.inventory || Number(player.inventory[itemKey]) <= 0) {
+            const statusMessage = renderBattleStatus(playerPokemon, enemy);
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            const speakOutput = `Voce nao tem esse item. Escolha outra acao. ${statusMessage}`;
+            return buildBattleMenuResponse(handlerInput, sessionAttributes, speakOutput);
+        }
+
+        const healPercent = itemKey === 'superPotion' ? 0.6 : 0.3;
+        const healAmount = Math.ceil(playerMaxHp * healPercent);
+        battle.playerHpCurrent = clampNumber(battle.playerHpCurrent + healAmount, 0, playerMaxHp);
+        player.inventory[itemKey] = Math.max(0, Number(player.inventory[itemKey]) - 1);
+        setPlayer(sessionAttributes, player);
+        playerPokemon.hpCurrent = battle.playerHpCurrent;
+
+        messages.push(itemKey === 'superPotion'
+            ? `Voce usou super pocao e recuperou ${healAmount} de HP.`
+            : `Voce usou pocao e recuperou ${healAmount} de HP.`);
+    } else if (actionType === 'defend') {
+        battle.defending = true;
+        battle.energy = clampNumber(battle.energy + 10, 0, 100);
+        messages.push('Voce se preparou para defender, ganhou energia e reduzira o dano recebido.');
+    } else if (actionType === 'flee') {
         const playerVel = Number(playerStats.Velocidade) || 0;
         const enemyVel = Number(enemyStats.Velocidade) || 0;
         const fleeChance = clampNumber(40 + (playerVel - enemyVel) * 1.5, 10, 90);
@@ -2086,87 +2309,165 @@ async function handleWildBattleAction(handlerInput, actionType) {
         if (fled) {
             delete sessionAttributes.battle;
             sessionAttributes.state = SESSION_STATES.IDLE;
+            playerPokemon.hpCurrent = playerMaxHp;
             sessionAttributes.pokemon = playerPokemon;
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
             await saveAll(handlerInput, sessionAttributes);
             const speakOutput = `Voce fugiu do ${enemy.name}.`;
             return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
         }
-        messages.push('Voce tentou fugir, mas nao conseguiu.');
+        messages.push('Voce nao conseguiu fugir.');
     } else {
+        const isSpecial = actionType === 'special';
+        const baseChance = isSpecial ? playerSpecialChance : playerFastChance;
         const attackResult = performAttack(
             playerStats,
-            playerPokemon.level,
+            playerPokemon.level || DEFAULT_LEVEL,
             enemyStats,
             enemyMaxHp,
             false,
-            85,
-            false
+            baseChance,
+            isSpecial,
+            playerPokemon.type,
+            enemy.type
         );
 
         if (attackResult.hit) {
             battle.enemyHpCurrent = clampNumber(battle.enemyHpCurrent - attackResult.damage, 0, enemyMaxHp);
-            messages.push(`Voce atacou e causou ${attackResult.damage} de dano.`);
+            messages.push(isSpecial
+                ? `Voce usou especial e causou ${attackResult.damage} de dano.`
+                : `Voce atacou e causou ${attackResult.damage} de dano.`);
+            const effectivenessMessage = getEffectivenessMessage(attackResult.multiplier);
+            if (effectivenessMessage) {
+                messages.push(effectivenessMessage);
+            }
         } else {
-            messages.push('Seu ataque errou.');
+            messages.push(isSpecial ? 'Seu especial errou.' : 'Seu ataque errou.');
+        }
+
+        if (isSpecial) {
+            battle.energy = clampNumber(battle.energy - 50, 0, 100);
+            battle.specialCooldown = 2;
+            playerUsedSpecial = true;
+        } else {
+            battle.energy = clampNumber(battle.energy + playerFastEnergyGain, 0, 100);
         }
     }
 
     enemy.hpCurrent = battle.enemyHpCurrent;
     if (battle.enemyHpCurrent <= 0) {
+        const dropRoll = Math.random();
+        let gotDrop = false;
+        if (dropRoll < 0.25) {
+            player.inventory.superPotion = (Number(player.inventory.superPotion) || 0) + 1;
+            messages.push('Voce encontrou uma super pocao!');
+            gotDrop = true;
+        } else if (dropRoll < 0.75) {
+            player.inventory.potion = (Number(player.inventory.potion) || 0) + 1;
+            messages.push('Voce encontrou uma pocao!');
+            gotDrop = true;
+        }
+
+        if (isEarlyWild) {
+            if (gotDrop) {
+                player.wildWinsWithoutPotion = 0;
+            } else {
+                const streak = (Number(player.wildWinsWithoutPotion) || 0) + 1;
+                if (streak >= 2) {
+                    player.inventory.potion = (Number(player.inventory.potion) || 0) + 1;
+                    messages.push('Voce encontrou uma pocao!');
+                    player.wildWinsWithoutPotion = 0;
+                } else {
+                    player.wildWinsWithoutPotion = streak;
+                }
+            }
+        } else if (Number(player.wildWinsWithoutPotion) > 0) {
+            player.wildWinsWithoutPotion = 0;
+        }
+
         delete sessionAttributes.battle;
         sessionAttributes.state = SESSION_STATES.IDLE;
-        playerPokemon.hpCurrent = battle.playerHpCurrent;
+        playerPokemon.hpCurrent = playerMaxHp;
         sessionAttributes.pokemon = playerPokemon;
+        setPlayer(sessionAttributes, player);
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
         await saveAll(handlerInput, sessionAttributes);
         const speakOutput = `${messages.join(' ')} Voce venceu ${enemy.name}.`;
         return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
     }
 
+    const enemyAction = chooseEnemyAction(battle, playerMaxHp);
+    let enemyActionType = enemyAction;
+    if (enemyActionType === 'special' && (battle.enemyEnergy < 50 || battle.enemySpecialCooldown > 0)) {
+        enemyActionType = 'fast';
+    }
+
+    const enemyIsSpecial = enemyActionType === 'special';
+    const enemyBaseChance = enemyIsSpecial ? enemySpecialChance : enemyFastChance;
     const enemyAttackResult = performAttack(
         enemyStats,
-        enemy.level,
+        enemy.level || DEFAULT_LEVEL,
         playerStats,
         playerMaxHp,
-        false,
-        85,
-        false
+        battle.defending,
+        enemyBaseChance,
+        enemyIsSpecial,
+        enemy.type,
+        playerPokemon.type
     );
     if (enemyAttackResult.hit) {
         battle.playerHpCurrent = clampNumber(battle.playerHpCurrent - enemyAttackResult.damage, 0, playerMaxHp);
-        messages.push(`O ${enemy.name} atacou e causou ${enemyAttackResult.damage} de dano.`);
+        messages.push(enemyIsSpecial
+            ? `O ${enemy.name} usou especial e causou ${enemyAttackResult.damage} de dano.`
+            : `O ${enemy.name} atacou e causou ${enemyAttackResult.damage} de dano.`);
+        const effectivenessMessage = getEffectivenessMessage(enemyAttackResult.multiplier);
+        if (effectivenessMessage) {
+            messages.push(effectivenessMessage);
+        }
+        if (battle.defending) {
+            messages.push('Sua defesa reduziu o dano recebido.');
+        }
     } else {
-        messages.push(`O ${enemy.name} errou o ataque.`);
+        messages.push(enemyIsSpecial
+            ? `O ${enemy.name} errou o especial.`
+            : `O ${enemy.name} errou o ataque.`);
     }
 
+    if (enemyIsSpecial) {
+        battle.enemyEnergy = clampNumber(battle.enemyEnergy - 50, 0, 100);
+        battle.enemySpecialCooldown = 2;
+        enemyUsedSpecial = true;
+    } else {
+        battle.enemyEnergy = clampNumber(battle.enemyEnergy + 15, 0, 100);
+    }
+
+    battle.defending = false;
     playerPokemon.hpCurrent = battle.playerHpCurrent;
     if (battle.playerHpCurrent <= 0) {
-        const recoveryHp = Math.ceil(playerMaxHp * 0.5);
-        playerPokemon.hpCurrent = recoveryHp;
+        playerPokemon.hpCurrent = playerMaxHp;
         delete sessionAttributes.battle;
         sessionAttributes.state = SESSION_STATES.IDLE;
         sessionAttributes.pokemon = playerPokemon;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
         await saveAll(handlerInput, sessionAttributes);
-        const speakOutput = `${messages.join(' ')} Voce foi derrotado e seu Pokemon se recuperou parcialmente.`;
+        const speakOutput = `${messages.join(' ')} Voce foi derrotado e seu Pokemon se recuperou totalmente.`;
         return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
     }
 
+    advanceCooldowns(battle, playerUsedSpecial, enemyUsedSpecial);
     battle.turn = Number(battle.turn || 1) + 1;
+    enemy.hpCurrent = battle.enemyHpCurrent;
+    playerPokemon.hpCurrent = battle.playerHpCurrent;
     sessionAttributes.battle = battle;
     sessionAttributes.pokemon = playerPokemon;
     handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     await saveAll(handlerInput, sessionAttributes);
 
     const statusMessage = renderBattleStatus(playerPokemon, enemy);
-    const speakOutput = `${messages.join(' ')} ${statusMessage}`;
-    return buildResponseWithOptions(
-        handlerInput,
-        sessionAttributes,
-        speakOutput,
-        { text: OPTIONS_WILD_BATTLE, reprompt: SHORT_BATTLE_REPROMPT }
-    );
+    const speakOutput = messages.length
+        ? `${messages.join(' ')} ${statusMessage}`
+        : statusMessage;
+    return buildBattleMenuResponse(handlerInput, sessionAttributes, speakOutput);
 }
 
 async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
@@ -2176,11 +2477,7 @@ async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
 
     if (!activeGymRun) {
         if (hasWildBattle) {
-            if (actionType === 'fast' || actionType === 'flee') {
-                return handleWildBattleAction(handlerInput, actionType);
-            }
-            const speakOutput = 'Nesta batalha voce pode atacar ou fugir.';
-            return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+            return handleWildBattleAction(handlerInput, actionType, itemSlotValue);
         }
         sessionAttributes.state = SESSION_STATES.IDLE;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
@@ -2314,12 +2611,18 @@ async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
             enemyMaxHp,
             false,
             baseChance,
-            isSpecial
+            isSpecial,
+            playerPokemon.type,
+            enemy.type
         );
 
         if (attackResult.hit) {
             battle.enemyHpCurrent = clampNumber(battle.enemyHpCurrent - attackResult.damage, 0, enemyMaxHp);
             messages.push(`Voce acertou e causou ${attackResult.damage} de dano.`);
+            const effectivenessMessage = getEffectivenessMessage(attackResult.multiplier);
+            if (effectivenessMessage) {
+                messages.push(effectivenessMessage);
+            }
         } else {
             messages.push('Voce errou o ataque.');
         }
@@ -2358,7 +2661,9 @@ async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
         playerMaxHp,
         battle.defending,
         enemyBaseChance,
-        enemyIsSpecial
+        enemyIsSpecial,
+        enemy.type,
+        playerPokemon.type
     );
 
     if (enemyAttackResult.hit) {
@@ -2366,6 +2671,10 @@ async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
         messages.push(enemyIsSpecial
             ? `O adversario usou especial e causou ${enemyAttackResult.damage} de dano.`
             : `O adversario atacou e causou ${enemyAttackResult.damage} de dano.`);
+        const effectivenessMessage = getEffectivenessMessage(enemyAttackResult.multiplier);
+        if (effectivenessMessage) {
+            messages.push(effectivenessMessage);
+        }
     } else {
         messages.push(enemyIsSpecial ? 'O adversario errou o especial.' : 'O adversario errou o ataque.');
     }
@@ -2497,6 +2806,30 @@ async function handleRespecDecision(handlerInput, sessionAttributes, wantsRespec
     return buildAllocatePointsResponse(handlerInput, sessionAttributes, 'Pontos liberados para redistribuicao.');
 }
 
+async function handleResetProgressConfirm(handlerInput, sessionAttributes) {
+    const freshPlayer = getDefaultPlayer();
+
+    sessionAttributes.state = SESSION_STATES.IDLE;
+    sessionAttributes.player = freshPlayer;
+    sessionAttributes.activeGymRun = null;
+    sessionAttributes.gymResume = false;
+    delete sessionAttributes.pokemon;
+    delete sessionAttributes.encounter;
+    delete sessionAttributes.battle;
+    delete sessionAttributes.rewardPokemon;
+    delete sessionAttributes.resetPreviousState;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+
+    handlerInput.attributesManager.setPersistentAttributes({
+        player: freshPlayer,
+        activeGymRun: null
+    });
+    await handlerInput.attributesManager.savePersistentAttributes();
+
+    const speakOutput = 'Pronto! Seu progresso foi apagado. Diga cacar pokemon para comecar do zero.';
+    return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+}
+
 async function startNextGymBattle(handlerInput, sessionAttributes, extraSpeech) {
     const activeGymRun = getActiveGymRun(sessionAttributes);
     const playerPokemon = getCapturedPokemon(sessionAttributes);
@@ -2578,6 +2911,15 @@ async function awardRewardsAndNextStep(handlerInput, sessionAttributes, extraSpe
     if (xpGained > 0) {
         messageParts.push(`Voce ganhou ${xpGained} de XP.`);
     }
+
+    if (stageValue < GYM_BOSS_STAGE) {
+        player.inventory.potion = (Number(player.inventory.potion) || 0) + 1;
+        messageParts.push('Voce recebeu uma pocao.');
+    } else {
+        player.inventory.superPotion = (Number(player.inventory.superPotion) || 0) + 1;
+        messageParts.push('Voce recebeu uma super pocao.');
+    }
+    setPlayer(sessionAttributes, player);
 
     if (stageValue < GYM_TOTAL_STAGES) {
         const healInfo = applyBetweenFightHealing(playerPokemon, stageValue);
@@ -2684,6 +3026,7 @@ function getDefaultPlayer() {
             superPotion: 0,
             buffAtk: 0
         },
+        wildWinsWithoutPotion: 0,
         respecTokens: 0,
         lossStreak: 0
     };
@@ -2938,6 +3281,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         StatusIntentHandler,
         KeepPokemonIntentHandler,
         CaptureNewPokemonIntentHandler,
+        ResetProgressIntentHandler,
         AllocatePointsIntentHandler,
         HelpIntentHandler,
         ModoBatalhaIntentHandler,
