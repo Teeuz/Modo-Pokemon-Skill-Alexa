@@ -121,8 +121,8 @@ const GetSorteioPokemonIntentHandler = {
     },
     async handle(handlerInput) {
         let safeGenerationId = 1;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         try {
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const player = getPlayer(sessionAttributes);
             const generationId = Number(player.currentGeneration);
             safeGenerationId = Number.isFinite(generationId) && generationId > 0 ? generationId : 1;
@@ -190,7 +190,7 @@ const CapturePokemonIntentHandler = {
 
             await saveAll(handlerInput, sessionAttributes);
 
-            speakOutput = `Parabéns! Você capturou ${pokemon.name}, com HP de ${pokemon.stats.Vida}. Agora você pode iniciar sua jornada com seu novo Pokémon!`;
+            speakOutput = `Parabens! Voce capturou ${pokemon.name}, com HP de ${pokemon.stats.Vida}. Agora voce pode iniciar sua jornada com seu novo Pokemon! ${OPTIONS_IDLE_WITH_POKEMON}`;
         } else {
             speakOutput = getErroCaptura(encounter.name);
         }
@@ -207,8 +207,8 @@ const TentarNovamenteIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TentarNovamenteIntent';
     },
     async handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         try {
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             if (getCapturedPokemon(sessionAttributes)) {
                 return buildResponseWithOptions(handlerInput, sessionAttributes, 'Você já capturou um Pokémon. Não é possível tentar novamente.');
             }
@@ -229,8 +229,8 @@ const ModoBatalhaIntentHandler = {
     },
     async handle(handlerInput) {
         let safeGenerationId = 1;
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         try {
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
             const player = getPlayer(sessionAttributes);
             if (sessionAttributes.state === SESSION_STATES.POST_BOSS_CHOICE) {
                 return buildPostBossChoiceResponse(handlerInput, sessionAttributes);
@@ -284,7 +284,7 @@ const ModoBatalhaIntentHandler = {
             sessionAttributes.battle = { enemy: pokemonInimigo };
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
-            const speakOutput = `Um ${pokemonInimigo.name} selvagem apareceu! Ele está no nível ${pokemonInimigo.level}. Prepare-se para a batalha!`;
+            const speakOutput = `Um ${pokemonInimigo.name} selvagem apareceu! Ele esta no nivel ${pokemonInimigo.level}. Prepare-se para a batalha! ${OPTIONS_WILD_BATTLE}`;
 
             return buildResponseWithOptions(
                 handlerInput,
