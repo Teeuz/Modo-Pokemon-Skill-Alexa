@@ -15,21 +15,17 @@
           "samples": [
             "stop",
             "parar",
-            "fechar ",
-            "Sair"
+            "fechar",
+            "sair"
           ]
         },
         {
-          "slots": [],
-          "name": "GetSorteioPokemonIntent",
-          "samples": [
-            "tentar novamente",
-            "encontrar pokemon",
-            "procurar pokemon",
-            "Caçar pokemon",
-            "sorteia",
-            "sorteio "
-          ]
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
         },
         {
           "name": "AMAZON.NavigateHomeIntent",
@@ -37,14 +33,63 @@
         },
         {
           "slots": [],
+          "name": "GetSorteioPokemonIntent",
+          "samples": [
+            "encontrar pokemon",
+            "procurar pokemon",
+            "cacar pokemon",
+            "sorteia",
+            "sorteio"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "generation",
+              "type": "AMAZON.NUMBER"
+            }
+          ],
+          "name": "SetGenerationIntent",
+          "samples": [
+            "mudar para geracao {generation}",
+            "trocar geracao para {generation}",
+            "usar geracao {generation}",
+            "geracao {generation}"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "GinasioIntent",
+          "samples": [
+            "entrar no ginasio",
+            "modo ginasio",
+            "quero enfrentar o ginasio",
+            "ir para o ginasio",
+            "comecar ginasio",
+            "iniciar ginasio"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "ModoBatalhaIntent",
+          "samples": [
+            "comecar luta",
+            "luta pokemon",
+            "batalha",
+            "batalha pokemon",
+            "modo batalha"
+          ]
+        },
+        {
+          "slots": [],
           "name": "CapturePokemonIntent",
           "samples": [
-            "caçar novamente",
-            "pegar pokemon",
             "capturar pokemon",
-            "Pegar",
-            "Sim",
-            "Capturar"
+            "pegar pokemon",
+            "tentar capturar",
+            "pegar",
+            "sim",
+            "capturar"
           ]
         },
         {
@@ -52,24 +97,184 @@
           "name": "TentarNovamenteIntent",
           "samples": [
             "nao",
-            "não",
-            "imitar dev",
-            "asdasd"
+            "nao quero",
+            "tentar novamente",
+            "tentar outro"
           ]
         },
         {
           "slots": [],
-          "name": "ModoBatalhaIntent",
+          "name": "KeepPokemonIntent",
           "samples": [
-            "Começar Luta",
-            "Luta pokemon",
-            "batalha ",
-            "Batalha pokemon",
-            "Modo batalha"
+            "manter",
+            "manter meu pokemon",
+            "continuar com o mesmo",
+            "ficar com o atual",
+            "ficar com o mesmo"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "CaptureNewPokemonIntent",
+          "samples": [
+            "capturar novo",
+            "trocar de pokemon",
+            "trocar pokemon",
+            "pegar um novo",
+            "quero um novo"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "AtacarIntent",
+          "samples": [
+            "atacar",
+            "ataque",
+            "ataque rapido",
+            "golpe rapido"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "EspecialIntent",
+          "samples": [
+            "especial",
+            "ataque especial",
+            "usar especial"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "DefenderIntent",
+          "samples": [
+            "defender",
+            "defesa",
+            "proteger",
+            "me defender"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "item",
+              "type": "ITEM_TYPE"
+            }
+          ],
+          "name": "UsarItemIntent",
+          "samples": [
+            "usar item",
+            "usar {item}",
+            "usar pocao",
+            "usar super pocao",
+            "pocao",
+            "super pocao"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "FugirIntent",
+          "samples": [
+            "fugir",
+            "correr",
+            "escapar",
+            "sair da batalha"
+          ]
+        },
+        {
+          "slots": [],
+          "name": "StatusIntent",
+          "samples": [
+            "status",
+            "como esta a batalha",
+            "minha vida"
+          ]
+        },
+        {
+          "slots": [
+            {
+              "name": "attribute",
+              "type": "ATTRIBUTE_TYPE"
+            }
+          ],
+          "name": "AllocatePointsIntent",
+          "samples": [
+            "colocar em {attribute}",
+            "alocar {attribute}",
+            "aumentar {attribute}",
+            "ponto em {attribute}",
+            "vida",
+            "ataque",
+            "especial",
+            "defesa",
+            "defesa especial",
+            "velocidade",
+            "desvio"
           ]
         }
       ],
-      "types": [],
+      "types": [
+        {
+          "name": "ITEM_TYPE",
+          "values": [
+            {
+              "name": {
+                "value": "potion",
+                "synonyms": [
+                  "pocao"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "superPotion",
+                "synonyms": [
+                  "super pocao"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ATTRIBUTE_TYPE",
+          "values": [
+            {
+              "name": {
+                "value": "vida"
+              }
+            },
+            {
+              "name": {
+                "value": "ataque"
+              }
+            },
+            {
+              "name": {
+                "value": "especial"
+              }
+            },
+            {
+              "name": {
+                "value": "defesa"
+              }
+            },
+            {
+              "name": {
+                "value": "defesa especial"
+              }
+            },
+            {
+              "name": {
+                "value": "velocidade"
+              }
+            },
+            {
+              "name": {
+                "value": "desvio"
+              }
+            }
+          ]
+        }
+      ],
       "invocationName": "modo pokemon"
     }
   }

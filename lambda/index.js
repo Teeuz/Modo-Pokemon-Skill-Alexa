@@ -217,7 +217,6 @@ const TentarNovamenteIntentHandler = {
                 const speakOutput = 'Nao ha um Pokemon para tentar novamente agora.';
                 return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
             }
-
             if (getCapturedPokemon(sessionAttributes)) {
                 return buildResponseWithOptions(handlerInput, sessionAttributes, 'Você já capturou um Pokémon. Não é possível tentar novamente.');
             }
@@ -2952,11 +2951,3 @@ exports.handler = Alexa.SkillBuilders.custom()
         })
     )
     .lambda();
-
-
-
-
-
-
-
-
