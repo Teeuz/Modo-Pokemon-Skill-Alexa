@@ -377,6 +377,9 @@ const YesIntentHandler = {
         if (sessionAttributes.state === SESSION_STATES.POST_BOSS_CHOICE) {
             return buildPostBossChoiceResponse(handlerInput, sessionAttributes, 'Nao entendi.');
         }
+        if (sessionAttributes.state === SESSION_STATES.IDLE && sessionAttributes.encounter && !getCapturedPokemon(sessionAttributes)) {
+            return CapturePokemonIntentHandler.handle(handlerInput);
+        }
         if (sessionAttributes.state === SESSION_STATES.ALLOCATE_POINTS) {
             const player = getPlayer(sessionAttributes);
             if (Number(player.attributePoints) > 0) {
@@ -514,6 +517,10 @@ const NoIntentHandler = {
             const speakOutput = 'Tudo bem. Quando quiser, diga "entrar no ginasio".';
             await saveAll(handlerInput, sessionAttributes);
             return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+        }
+
+        if (sessionAttributes.state === SESSION_STATES.IDLE && sessionAttributes.encounter && !getCapturedPokemon(sessionAttributes)) {
+            return TentarNovamenteIntentHandler.handle(handlerInput);
         }
 
         const speakOutput = 'Ok.';
