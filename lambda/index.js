@@ -209,6 +209,15 @@ const TentarNovamenteIntentHandler = {
     async handle(handlerInput) {
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         try {
+            const encounter = sessionAttributes.encounter;
+            if (!encounter) {
+                if (sessionAttributes.battle && sessionAttributes.battle.enemy) {
+                    return buildResponseWithOptions(handlerInput, sessionAttributes, 'Estamos em batalha agora.');
+                }
+                const speakOutput = 'Nao ha um Pokemon para tentar novamente agora.';
+                return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+            }
+
             if (getCapturedPokemon(sessionAttributes)) {
                 return buildResponseWithOptions(handlerInput, sessionAttributes, 'Você já capturou um Pokémon. Não é possível tentar novamente.');
             }
@@ -281,7 +290,23 @@ const ModoBatalhaIntentHandler = {
                 playerPokemon.level || DEFAULT_LEVEL
             );
 
-            sessionAttributes.battle = { enemy: pokemonInimigo };
+            const enemyMaxHp = getEnemyMaxHp(pokemonInimigo);
+            const playerMaxHp = getPlayerMaxHp(playerPokemon);
+            const playerHp = Number.isFinite(Number(playerPokemon.hpCurrent))
+                ? clampNumber(Number(playerPokemon.hpCurrent), 0, playerMaxHp)
+                : playerMaxHp;
+            const enemyHp = Number.isFinite(Number(pokemonInimigo.hpCurrent))
+                ? clampNumber(Number(pokemonInimigo.hpCurrent), 0, enemyMaxHp)
+                : enemyMaxHp;
+
+            sessionAttributes.battle = {
+                enemy: pokemonInimigo,
+                playerHpCurrent: playerHp,
+                enemyHpCurrent: enemyHp,
+                turn: 1
+            };
+            playerPokemon.hpCurrent = playerHp;
+            sessionAttributes.pokemon = playerPokemon;
             handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
             const speakOutput = `Um ${pokemonInimigo.name} selvagem apareceu! Ele esta no nivel ${pokemonInimigo.level}. Prepare-se para a batalha! ${OPTIONS_WILD_BATTLE}`;
@@ -564,6 +589,23 @@ const StatusIntentHandler = {
         if (!playerPokemon) {
             const speakOutput = 'Voce ainda nao tem um Pokemon capturado.';
             return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+        }
+
+        const wildBattle = sessionAttributes.battle && sessionAttributes.battle.enemy;
+        if (wildBattle) {
+            const { battle, enemy } = ensureWildBattleState(sessionAttributes, playerPokemon);
+            if (!battle || !enemy) {
+                const speakOutput = 'Nao ha batalha ativa agora.';
+                return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+            }
+            const speakOutput = renderBattleStatus(playerPokemon, enemy);
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            return buildResponseWithOptions(
+                handlerInput,
+                sessionAttributes,
+                speakOutput,
+                { text: OPTIONS_WILD_BATTLE, reprompt: SHORT_BATTLE_REPROMPT }
+            );
         }
 
         const activeGymRun = getActiveGymRun(sessionAttributes);
@@ -1731,6 +1773,35 @@ function ensureBattleState(activeGymRun, playerPokemon) {
     return { battle, enemy };
 }
 
+function ensureWildBattleState(sessionAttributes, playerPokemon) {
+    if (!sessionAttributes || !sessionAttributes.battle || !sessionAttributes.battle.enemy || !playerPokemon) {
+        return { battle: null, enemy: null };
+    }
+
+    const battle = sessionAttributes.battle;
+    const enemy = battle.enemy;
+    const playerMaxHp = getPlayerMaxHp(playerPokemon);
+    const enemyMaxHp = getEnemyMaxHp(enemy);
+
+    const rawPlayerHp = Number.isFinite(Number(battle.playerHpCurrent))
+        ? Number(battle.playerHpCurrent)
+        : (Number.isFinite(Number(playerPokemon.hpCurrent)) ? Number(playerPokemon.hpCurrent) : playerMaxHp);
+    const rawEnemyHp = Number.isFinite(Number(battle.enemyHpCurrent))
+        ? Number(battle.enemyHpCurrent)
+        : (Number.isFinite(Number(enemy.hpCurrent)) ? Number(enemy.hpCurrent) : enemyMaxHp);
+
+    battle.playerHpCurrent = clampNumber(rawPlayerHp, 0, playerMaxHp);
+    battle.enemyHpCurrent = clampNumber(rawEnemyHp, 0, enemyMaxHp);
+    battle.turn = Number(battle.turn || 1);
+
+    playerPokemon.hpCurrent = battle.playerHpCurrent;
+    enemy.hpCurrent = battle.enemyHpCurrent;
+
+    sessionAttributes.battle = battle;
+
+    return { battle, enemy };
+}
+
 function appendOptionsText(baseSpeech, optionsText) {
     if (!optionsText) {
         return baseSpeech || '';
@@ -1965,11 +2036,146 @@ function performAttack(attackerStats, attackerLevel, defenderStats, defenderMaxH
     return { hit: true, damage };
 }
 
+async function handleWildBattleAction(handlerInput, actionType) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const battleState = sessionAttributes.battle;
+
+    if (!battleState || !battleState.enemy) {
+        sessionAttributes.state = SESSION_STATES.IDLE;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        const speakOutput = 'Nao ha batalha em andamento. Diga "modo batalha" para encontrar um adversario.';
+        await saveAll(handlerInput, sessionAttributes);
+        return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+    }
+
+    const playerPokemon = getCapturedPokemon(sessionAttributes);
+    if (!playerPokemon) {
+        sessionAttributes.state = SESSION_STATES.IDLE;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        const speakOutput = 'Voce precisa capturar um Pokemon primeiro. Peca para cacar um.';
+        await saveAll(handlerInput, sessionAttributes);
+        return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+    }
+
+    const { battle, enemy } = ensureWildBattleState(sessionAttributes, playerPokemon);
+    if (!battle || !enemy) {
+        sessionAttributes.state = SESSION_STATES.IDLE;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        const speakOutput = 'Nao consegui continuar a batalha agora.';
+        await saveAll(handlerInput, sessionAttributes);
+        return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+    }
+
+    const playerStats = playerPokemon.stats || {};
+    const enemyStats = enemy.stats || {};
+    const playerMaxHp = getPlayerMaxHp(playerPokemon);
+    const enemyMaxHp = getEnemyMaxHp(enemy);
+    const messages = [];
+
+    if (actionType === 'flee') {
+        const playerVel = Number(playerStats.Velocidade) || 0;
+        const enemyVel = Number(enemyStats.Velocidade) || 0;
+        const fleeChance = clampNumber(40 + (playerVel - enemyVel) * 1.5, 10, 90);
+        const fled = rollHit(fleeChance);
+        if (fled) {
+            delete sessionAttributes.battle;
+            sessionAttributes.state = SESSION_STATES.IDLE;
+            sessionAttributes.pokemon = playerPokemon;
+            handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+            await saveAll(handlerInput, sessionAttributes);
+            const speakOutput = `Voce fugiu do ${enemy.name}.`;
+            return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+        }
+        messages.push('Voce tentou fugir, mas nao conseguiu.');
+    } else {
+        const attackResult = performAttack(
+            playerStats,
+            playerPokemon.level,
+            enemyStats,
+            enemyMaxHp,
+            false,
+            85,
+            false
+        );
+
+        if (attackResult.hit) {
+            battle.enemyHpCurrent = clampNumber(battle.enemyHpCurrent - attackResult.damage, 0, enemyMaxHp);
+            messages.push(`Voce atacou e causou ${attackResult.damage} de dano.`);
+        } else {
+            messages.push('Seu ataque errou.');
+        }
+    }
+
+    enemy.hpCurrent = battle.enemyHpCurrent;
+    if (battle.enemyHpCurrent <= 0) {
+        delete sessionAttributes.battle;
+        sessionAttributes.state = SESSION_STATES.IDLE;
+        playerPokemon.hpCurrent = battle.playerHpCurrent;
+        sessionAttributes.pokemon = playerPokemon;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        await saveAll(handlerInput, sessionAttributes);
+        const speakOutput = `${messages.join(' ')} Voce venceu ${enemy.name}.`;
+        return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+    }
+
+    const enemyAttackResult = performAttack(
+        enemyStats,
+        enemy.level,
+        playerStats,
+        playerMaxHp,
+        false,
+        85,
+        false
+    );
+    if (enemyAttackResult.hit) {
+        battle.playerHpCurrent = clampNumber(battle.playerHpCurrent - enemyAttackResult.damage, 0, playerMaxHp);
+        messages.push(`O ${enemy.name} atacou e causou ${enemyAttackResult.damage} de dano.`);
+    } else {
+        messages.push(`O ${enemy.name} errou o ataque.`);
+    }
+
+    playerPokemon.hpCurrent = battle.playerHpCurrent;
+    if (battle.playerHpCurrent <= 0) {
+        const recoveryHp = Math.ceil(playerMaxHp * 0.5);
+        playerPokemon.hpCurrent = recoveryHp;
+        delete sessionAttributes.battle;
+        sessionAttributes.state = SESSION_STATES.IDLE;
+        sessionAttributes.pokemon = playerPokemon;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+        await saveAll(handlerInput, sessionAttributes);
+        const speakOutput = `${messages.join(' ')} Voce foi derrotado e seu Pokemon se recuperou parcialmente.`;
+        return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+    }
+
+    battle.turn = Number(battle.turn || 1) + 1;
+    sessionAttributes.battle = battle;
+    sessionAttributes.pokemon = playerPokemon;
+    handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+    await saveAll(handlerInput, sessionAttributes);
+
+    const statusMessage = renderBattleStatus(playerPokemon, enemy);
+    const speakOutput = `${messages.join(' ')} ${statusMessage}`;
+    return buildResponseWithOptions(
+        handlerInput,
+        sessionAttributes,
+        speakOutput,
+        { text: OPTIONS_WILD_BATTLE, reprompt: SHORT_BATTLE_REPROMPT }
+    );
+}
+
 async function handleGymBattleAction(handlerInput, actionType, itemSlotValue) {
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const activeGymRun = getActiveGymRun(sessionAttributes);
+    const hasWildBattle = Boolean(sessionAttributes && sessionAttributes.battle && sessionAttributes.battle.enemy);
 
     if (!activeGymRun) {
+        if (hasWildBattle) {
+            if (actionType === 'fast' || actionType === 'flee') {
+                return handleWildBattleAction(handlerInput, actionType);
+            }
+            const speakOutput = 'Nesta batalha voce pode atacar ou fugir.';
+            return buildResponseWithOptions(handlerInput, sessionAttributes, speakOutput);
+        }
         sessionAttributes.state = SESSION_STATES.IDLE;
         handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
         const speakOutput = 'Nao ha ginasio em andamento. Diga "entrar no ginasio" para comecar.';
